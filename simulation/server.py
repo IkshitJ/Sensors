@@ -203,8 +203,9 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--port", type=int, default=8080)
-    ap.add_argument("--host", default="127.0.0.1")
+    # Hosting platforms (Render, Railway, Fly.io) pass the port and expect 0.0.0.0.
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", 8080)))
+    ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
     a = ap.parse_args()
     build()
     SIM.start("v2", "normal", 1)
