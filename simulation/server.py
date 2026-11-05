@@ -211,7 +211,7 @@ def main():
     SIM.start("v2", "normal", 1)
     srv = ThreadingHTTPServer((a.host, a.port), Handler)
     srv.daemon_threads = True
-    print(f"Zebra crossing simulator running at  http://localhost:{a.port}   (Ctrl+C to stop)", flush=True)
+    print(f"Prototype : Counting people in Kumbh - simulator running at  http://localhost:{a.port}   (Ctrl+C to stop)", flush=True)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

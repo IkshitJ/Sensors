@@ -1,6 +1,6 @@
 /*
  * ============================================================================
- *  ZEBRA CROSSING PEDESTRIAN COUNTER — v2 (full-width strip)
+ *  PROTOTYPE : COUNTING PEOPLE IN KUMBH — v2 (full-width strip)
  * ============================================================================
  *
  *  Board:     Arduino Mega 2560
@@ -240,7 +240,7 @@ void handleSerial() {
 void setup() {
   Serial.begin(115200);
   Serial.println(F("================================================"));
-  Serial.println(F("  ZEBRA CROSSING PEDESTRIAN COUNTER v2"));
+  Serial.println(F("  PROTOTYPE : COUNTING PEOPLE IN KUMBH v2"));
   Serial.println(F("  14 pads across both lanes (keep the strip clear)"));
   Serial.println(F("================================================"));
 

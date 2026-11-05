@@ -1,4 +1,4 @@
-# Zebra Crossing Pedestrian Counter
+# Prototype : Counting people in Kumbh
 
 A strip of load-cell pads lies on the zebra crossing and spans **both lanes**. People move along the lanes just like the vehicles: lane A → and lane B ←. The strip counts everyone who walks over it, reports the total and the count in each direction, and ignores vehicles. An Arduino Mega reads the 14 pads at 80 Hz.
 
