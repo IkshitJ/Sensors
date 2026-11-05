@@ -1,0 +1,632 @@
+[
+ {
+  "scenario": "sparse",
+  "description": "4 people/min, walking alone",
+  "v2": {
+   "truth": 121,
+   "counted": 122,
+   "accuracy": 0.9917355371900827,
+   "worstRun": 0.9231,
+   "vehiclesOverStrip": 0,
+   "lanes": {
+    "A": {
+     "truth": 54,
+     "counted": 53,
+     "accuracy": 0.9814814814814815
+    },
+    "B": {
+     "truth": 67,
+     "counted": 69,
+     "accuracy": 0.9701492537313433
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "sparse",
+     "seed": 1,
+     "duration": 600,
+     "truth": 42,
+     "counted": 41,
+     "accuracy": 0.9762,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 20,
+     "truthB": 22,
+     "countedA": 20,
+     "countedB": 21
+    },
+    {
+     "firmware": "v2",
+     "scenario": "sparse",
+     "seed": 2,
+     "duration": 600,
+     "truth": 39,
+     "counted": 42,
+     "accuracy": 0.9231,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 15,
+     "truthB": 24,
+     "countedA": 15,
+     "countedB": 27
+    },
+    {
+     "firmware": "v2",
+     "scenario": "sparse",
+     "seed": 3,
+     "duration": 600,
+     "truth": 40,
+     "counted": 39,
+     "accuracy": 0.975,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 19,
+     "truthB": 21,
+     "countedA": 18,
+     "countedB": 21
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "normal",
+  "description": "14/min, 25% groups, some vehicles",
+  "v2": {
+   "truth": 597,
+   "counted": 565,
+   "accuracy": 0.9463986599664992,
+   "worstRun": 0.9267,
+   "vehiclesOverStrip": 118,
+   "lanes": {
+    "A": {
+     "truth": 278,
+     "counted": 267,
+     "accuracy": 0.960431654676259
+    },
+    "B": {
+     "truth": 319,
+     "counted": 298,
+     "accuracy": 0.9341692789968652
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "normal",
+     "seed": 1,
+     "duration": 600,
+     "truth": 181,
+     "counted": 169,
+     "accuracy": 0.9337,
+     "vehicles": 41,
+     "vehiclesOverStrip": 41,
+     "truthA": 83,
+     "truthB": 98,
+     "countedA": 75,
+     "countedB": 94
+    },
+    {
+     "firmware": "v2",
+     "scenario": "normal",
+     "seed": 2,
+     "duration": 600,
+     "truth": 184,
+     "counted": 181,
+     "accuracy": 0.9837,
+     "vehicles": 39,
+     "vehiclesOverStrip": 39,
+     "truthA": 87,
+     "truthB": 97,
+     "countedA": 88,
+     "countedB": 93
+    },
+    {
+     "firmware": "v2",
+     "scenario": "normal",
+     "seed": 3,
+     "duration": 600,
+     "truth": 232,
+     "counted": 215,
+     "accuracy": 0.9267,
+     "vehicles": 38,
+     "vehiclesOverStrip": 38,
+     "truthA": 108,
+     "truthB": 124,
+     "countedA": 104,
+     "countedB": 111
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "rush",
+  "description": "36/min, groups, some vehicles",
+  "v2": {
+   "truth": 1744,
+   "counted": 1750,
+   "accuracy": 0.9965596330275229,
+   "worstRun": 0.9747,
+   "vehiclesOverStrip": 101,
+   "lanes": {
+    "A": {
+     "truth": 900,
+     "counted": 889,
+     "accuracy": 0.9877777777777778
+    },
+    "B": {
+     "truth": 844,
+     "counted": 861,
+     "accuracy": 0.9798578199052133
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "rush",
+     "seed": 1,
+     "duration": 600,
+     "truth": 610,
+     "counted": 615,
+     "accuracy": 0.9918,
+     "vehicles": 34,
+     "vehiclesOverStrip": 34,
+     "truthA": 327,
+     "truthB": 283,
+     "countedA": 324,
+     "countedB": 291
+    },
+    {
+     "firmware": "v2",
+     "scenario": "rush",
+     "seed": 2,
+     "duration": 600,
+     "truth": 554,
+     "counted": 568,
+     "accuracy": 0.9747,
+     "vehicles": 35,
+     "vehiclesOverStrip": 35,
+     "truthA": 279,
+     "truthB": 275,
+     "countedA": 286,
+     "countedB": 282
+    },
+    {
+     "firmware": "v2",
+     "scenario": "rush",
+     "seed": 3,
+     "duration": 600,
+     "truth": 580,
+     "counted": 567,
+     "accuracy": 0.9776,
+     "vehicles": 32,
+     "vehiclesOverStrip": 32,
+     "truthA": 294,
+     "truthB": 286,
+     "countedA": 279,
+     "countedB": 288
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "dense",
+  "description": "75/min continuous flow, 40% groups",
+  "v2": {
+   "truth": 3736,
+   "counted": 3751,
+   "accuracy": 0.9959850107066381,
+   "worstRun": 0.9668,
+   "vehiclesOverStrip": 0,
+   "lanes": {
+    "A": {
+     "truth": 1887,
+     "counted": 1860,
+     "accuracy": 0.985691573926868
+    },
+    "B": {
+     "truth": 1849,
+     "counted": 1891,
+     "accuracy": 0.9772850189291509
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "dense",
+     "seed": 1,
+     "duration": 600,
+     "truth": 1240,
+     "counted": 1211,
+     "accuracy": 0.9766,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 616,
+     "truthB": 624,
+     "countedA": 597,
+     "countedB": 614
+    },
+    {
+     "firmware": "v2",
+     "scenario": "dense",
+     "seed": 2,
+     "duration": 600,
+     "truth": 1290,
+     "counted": 1294,
+     "accuracy": 0.9969,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 667,
+     "truthB": 623,
+     "countedA": 655,
+     "countedB": 639
+    },
+    {
+     "firmware": "v2",
+     "scenario": "dense",
+     "seed": 3,
+     "duration": 600,
+     "truth": 1206,
+     "counted": 1246,
+     "accuracy": 0.9668,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 604,
+     "truthB": 602,
+     "countedA": 608,
+     "countedB": 638
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "festival",
+  "description": "140/min crowd, 50% groups",
+  "v2": {
+   "truth": 7626,
+   "counted": 7919,
+   "accuracy": 0.9615788093364804,
+   "worstRun": 0.94,
+   "vehiclesOverStrip": 0,
+   "lanes": {
+    "A": {
+     "truth": 3836,
+     "counted": 3980,
+     "accuracy": 0.9624608967674662
+    },
+    "B": {
+     "truth": 3790,
+     "counted": 3939,
+     "accuracy": 0.9606860158311346
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "festival",
+     "seed": 1,
+     "duration": 600,
+     "truth": 2593,
+     "counted": 2679,
+     "accuracy": 0.9668,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 1295,
+     "truthB": 1298,
+     "countedA": 1346,
+     "countedB": 1333
+    },
+    {
+     "firmware": "v2",
+     "scenario": "festival",
+     "seed": 2,
+     "duration": 600,
+     "truth": 2516,
+     "counted": 2667,
+     "accuracy": 0.94,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 1274,
+     "truthB": 1242,
+     "countedA": 1335,
+     "countedB": 1332
+    },
+    {
+     "firmware": "v2",
+     "scenario": "festival",
+     "seed": 3,
+     "duration": 600,
+     "truth": 2517,
+     "counted": 2573,
+     "accuracy": 0.9778,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthA": 1267,
+     "truthB": 1250,
+     "countedA": 1299,
+     "countedB": 1274
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "signal",
+  "description": "platoons of ~45 every 60 s + traffic",
+  "v2": {
+   "truth": 1368,
+   "counted": 1307,
+   "accuracy": 0.9554093567251462,
+   "worstRun": 0.9239,
+   "vehiclesOverStrip": 198,
+   "lanes": {
+    "A": {
+     "truth": 669,
+     "counted": 631,
+     "accuracy": 0.9431988041853513
+    },
+    "B": {
+     "truth": 699,
+     "counted": 676,
+     "accuracy": 0.9670958512160229
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "signal",
+     "seed": 1,
+     "duration": 600,
+     "truth": 453,
+     "counted": 433,
+     "accuracy": 0.9558,
+     "vehicles": 66,
+     "vehiclesOverStrip": 66,
+     "truthA": 199,
+     "truthB": 254,
+     "countedA": 181,
+     "countedB": 252
+    },
+    {
+     "firmware": "v2",
+     "scenario": "signal",
+     "seed": 2,
+     "duration": 600,
+     "truth": 455,
+     "counted": 449,
+     "accuracy": 0.9868,
+     "vehicles": 72,
+     "vehiclesOverStrip": 72,
+     "truthA": 222,
+     "truthB": 233,
+     "countedA": 225,
+     "countedB": 224
+    },
+    {
+     "firmware": "v2",
+     "scenario": "signal",
+     "seed": 3,
+     "duration": 600,
+     "truth": 460,
+     "counted": 425,
+     "accuracy": 0.9239,
+     "vehicles": 60,
+     "vehiclesOverStrip": 60,
+     "truthA": 248,
+     "truthB": 212,
+     "countedA": 225,
+     "countedB": 200
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "waiting",
+  "description": "30% stop on the strip 3-25 s",
+  "v2": {
+   "truth": 469,
+   "counted": 463,
+   "accuracy": 0.9872068230277186,
+   "worstRun": 0.9722,
+   "vehiclesOverStrip": 60,
+   "lanes": {
+    "A": {
+     "truth": 239,
+     "counted": 223,
+     "accuracy": 0.9330543933054394
+    },
+    "B": {
+     "truth": 230,
+     "counted": 240,
+     "accuracy": 0.9565217391304348
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "waiting",
+     "seed": 1,
+     "duration": 600,
+     "truth": 174,
+     "counted": 174,
+     "accuracy": 1.0,
+     "vehicles": 22,
+     "vehiclesOverStrip": 22,
+     "truthA": 96,
+     "truthB": 78,
+     "countedA": 95,
+     "countedB": 79
+    },
+    {
+     "firmware": "v2",
+     "scenario": "waiting",
+     "seed": 2,
+     "duration": 600,
+     "truth": 144,
+     "counted": 140,
+     "accuracy": 0.9722,
+     "vehicles": 17,
+     "vehiclesOverStrip": 17,
+     "truthA": 70,
+     "truthB": 74,
+     "countedA": 62,
+     "countedB": 78
+    },
+    {
+     "firmware": "v2",
+     "scenario": "waiting",
+     "seed": 3,
+     "duration": 600,
+     "truth": 151,
+     "counted": 149,
+     "accuracy": 0.9868,
+     "vehicles": 21,
+     "vehiclesOverStrip": 21,
+     "truthA": 73,
+     "truthB": 78,
+     "countedA": 66,
+     "countedB": 83
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "mixed",
+  "description": "18 people/min + 10 vehicles/min, 20% stop on strip",
+  "v2": {
+   "truth": 851,
+   "counted": 806,
+   "accuracy": 0.9471210340775558,
+   "worstRun": 0.9041,
+   "vehiclesOverStrip": 349,
+   "lanes": {
+    "A": {
+     "truth": 422,
+     "counted": 399,
+     "accuracy": 0.9454976303317536
+    },
+    "B": {
+     "truth": 429,
+     "counted": 407,
+     "accuracy": 0.9487179487179487
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "mixed",
+     "seed": 1,
+     "duration": 600,
+     "truth": 276,
+     "counted": 261,
+     "accuracy": 0.9457,
+     "vehicles": 115,
+     "vehiclesOverStrip": 115,
+     "truthA": 148,
+     "truthB": 128,
+     "countedA": 140,
+     "countedB": 121
+    },
+    {
+     "firmware": "v2",
+     "scenario": "mixed",
+     "seed": 2,
+     "duration": 600,
+     "truth": 304,
+     "counted": 300,
+     "accuracy": 0.9868,
+     "vehicles": 123,
+     "vehiclesOverStrip": 123,
+     "truthA": 159,
+     "truthB": 145,
+     "countedA": 150,
+     "countedB": 150
+    },
+    {
+     "firmware": "v2",
+     "scenario": "mixed",
+     "seed": 3,
+     "duration": 600,
+     "truth": 271,
+     "counted": 245,
+     "accuracy": 0.9041,
+     "vehicles": 111,
+     "vehiclesOverStrip": 111,
+     "truthA": 115,
+     "truthB": 156,
+     "countedA": 109,
+     "countedB": 136
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "traffic",
+  "description": "vehicles only (cars, motos, autos, buses, trucks)",
+  "v2": {
+   "truth": 0,
+   "counted": 43,
+   "accuracy": null,
+   "worstRun": null,
+   "vehiclesOverStrip": 728,
+   "lanes": {
+    "A": {
+     "truth": 0,
+     "counted": 15,
+     "accuracy": null
+    },
+    "B": {
+     "truth": 0,
+     "counted": 28,
+     "accuracy": null
+    }
+   },
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "traffic",
+     "seed": 1,
+     "duration": 600,
+     "truth": 0,
+     "counted": 16,
+     "accuracy": 0.0,
+     "vehicles": 280,
+     "vehiclesOverStrip": 280,
+     "truthA": 0,
+     "truthB": 0,
+     "countedA": 5,
+     "countedB": 11
+    },
+    {
+     "firmware": "v2",
+     "scenario": "traffic",
+     "seed": 2,
+     "duration": 600,
+     "truth": 0,
+     "counted": 9,
+     "accuracy": 0.0,
+     "vehicles": 228,
+     "vehiclesOverStrip": 228,
+     "truthA": 0,
+     "truthB": 0,
+     "countedA": 5,
+     "countedB": 4
+    },
+    {
+     "firmware": "v2",
+     "scenario": "traffic",
+     "seed": 3,
+     "duration": 600,
+     "truth": 0,
+     "counted": 18,
+     "accuracy": 0.0,
+     "vehicles": 220,
+     "vehiclesOverStrip": 220,
+     "truthA": 0,
+     "truthB": 0,
+     "countedA": 5,
+     "countedB": 13
+    }
+   ]
+  }
+ }
+]
