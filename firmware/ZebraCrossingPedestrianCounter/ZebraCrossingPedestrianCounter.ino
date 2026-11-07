@@ -31,7 +31,7 @@
  *   dropped instead of counted. (ROLE_TWO_WAY keeps the v3 behaviour for a
  *   single strip across a two-way road, where the tracker splits the
  *   crossings in/out from the load pattern.)
- *   OVERCROWDING ALERT: when the people inside reach the limit (3000 by
+ *   OVERCROWDING ALERT: when the people inside reach the limit (300 by
  *   default) ALERT_PIN goes HIGH (drive a relay for a siren / beacon / gate
  *   signal) and the board prints an alarm. It clears below 95 % of the limit.
  *
@@ -57,7 +57,7 @@
  *                                               (sent on Serial1, echoed here)
  *   Commands: r=reset counts  t=tare  s=status  c=calibration info
  *             o<n>=set people inside now (e.g. o0, o2500)
- *             l<n>=overcrowding limit (e.g. l3000)
+ *             l<n>=overcrowding limit (e.g. l300)
  *             d=debug line on/off  m=telemetry on/off  h=help
  * ============================================================================
  */
@@ -112,11 +112,9 @@ float CAL_M[NUM_PLATES] = {
   2147.4, 2147.4, 2147.4, 2147.4, 2147.4, 2147.4, 2147.4,
 };
 
-// Overcrowding alert. 3000 = the gated section of the ghat served by this
-// pair of gates, taken as ~1500 m2 (100 m of frontage x 15 m of steps and
-// plaza), at 2 people / m2, the planning ceiling for a crowd that must keep
-// moving (Fruin level of service C/D). Measure the real area and set l<n>.
-#define CROWD_LIMIT_DEFAULT 3000L   // people inside the premises that trigger the alert
+// Overcrowding alert: people inside the premises at which the alert fires.
+// Set to the safe capacity of the area these gates serve (l<n> changes it).
+#define CROWD_LIMIT_DEFAULT 300L    // people inside the premises that trigger the alert
 #define ALERT_PIN       50          // HIGH while overcrowded: relay for siren / beacon / gate signal
 #define ALERT_REPEAT_MS 10000UL     // repeat the alarm line this often while it lasts
 
@@ -493,7 +491,7 @@ void printCalibration() {
 
 void printHelp() {
   Serial.println(F("Commands: r=reset counts  t=tare (clear the strip!)  s=status  c=calibration"));
-  Serial.println(F("          o<n>=people inside now, e.g. o0 or o2500  l<n>=overcrowding limit, e.g. l3000"));
+  Serial.println(F("          o<n>=people inside now, e.g. o0 or o2500  l<n>=overcrowding limit, e.g. l300"));
   Serial.println(F("          d=debug  m=telemetry  h=help"));
 }
 

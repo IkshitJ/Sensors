@@ -250,7 +250,7 @@ You can try this whole procedure in the simulator: choose *Calibration sketch* a
 | `r` | reset the counts (crossed, in, out, inside); send it to both boards |
 | `t` | tare all plates (keep the strip clear) |
 | `o<n>` + Enter | set the number of people inside the premises now, e.g. `o0`, `o2500` (send it to both boards, or they will disagree) |
-| `l<n>` + Enter | overcrowding alert limit, e.g. `l3000` (the default) |
+| `l<n>` + Enter | overcrowding alert limit, e.g. `l300` (the default) |
 | `s` | status: crossed, in, out, inside, the link to the other gate, learned constants, worst frame time |
 | `c` | calibration factors (ghat-side / marg-side), auto-zero |
 | `d` | human-readable plate debug line on/off |
@@ -274,14 +274,14 @@ Machine-readable lines for a data logger:
 
 ### Overcrowding alert
 
-When the people inside reach the limit (**3,000** by default, `l<n>` to change it), the board:
+When the people inside reach the limit (**300** by default, `l<n>` to change it), the board:
 
 - drives **pin 50 HIGH**, for a relay that switches a siren, a beacon or a "hold entry" signal at the gate;
-- prints `!!! OVERCROWDING ALERT: 3004 people inside Ram Ghat (limit 3000) - hold entry at the gate !!!` and an `@A` line, repeated every 10 s while the alert lasts.
+- prints `!!! OVERCROWDING ALERT: 304 people inside Ram Ghat (limit 300) - hold entry at the gate !!!` and an `@A` line, repeated every 10 s while the alert lasts.
 
-It clears when the count falls below 95% of the limit (2,850 at the default), so it doesn't flicker on and off around the limit. In the web app the counter turns red, a banner appears over the scene, and the browser beeps once the page has been clicked.
+It clears when the count falls below 95% of the limit (285 at the default), so it doesn't flicker on and off around the limit. In the web app the counter turns red, a banner appears over the scene, and the browser beeps once the page has been clicked.
 
-**Where 3,000 comes from.** It is a modelling choice, not a measurement: the section of the ghat served by this pair of gates is taken as about 1,500 m² (100 m of frontage × 15 m of steps and plaza), at 2 people/m², the usual planning ceiling for a crowd that has to keep moving (Fruin's level of service C/D boundary). Two 7 m corridors can pass several hundred people a minute each, so a limit in the hundreds would trip within minutes of a normal flow. Measure the real area and set `l<n>` accordingly; the limit is also the number at which the gate marshals should hold the entry corridor.
+**Choosing the limit.** Set it to the safe capacity of the area the gates serve: its usable area × the density the crowd may reach (2 people/m² is a common planning ceiling for a crowd that has to keep moving). At the default of 300, two 7 m corridors carrying a normal flow reach the limit within minutes, so in the simulator the alert fires early in most scenarios. The limit is also the number at which the gate marshals should hold the entry corridor.
 
 ---
 
