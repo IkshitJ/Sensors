@@ -3,68 +3,127 @@
   "scenario": "sparse",
   "description": "4 people/min, walking alone",
   "v2": {
-   "truth": 121,
-   "counted": 122,
-   "accuracy": 0.9917355371900827,
-   "worstRun": 0.9231,
+   "truth": 135,
+   "counted": 137,
+   "accuracy": 0.9851851851851852,
+   "worstRun": 0.9167,
    "vehiclesOverStrip": 0,
-   "lanes": {
-    "A": {
-     "truth": 54,
-     "counted": 53,
-     "accuracy": 0.9814814814814815
+   "dirs": {
+    "in": {
+     "truth": 78,
+     "counted": 77,
+     "accuracy": 0.9871794871794872
     },
-    "B": {
-     "truth": 67,
-     "counted": 69,
-     "accuracy": 0.9701492537313433
+    "out": {
+     "truth": 57,
+     "counted": 60,
+     "accuracy": 0.9473684210526316
     }
    },
+   "inside": {
+    "truthEnd": [
+     7,
+     6,
+     8
+    ],
+    "countedEnd": [
+     5,
+     6,
+     6
+    ],
+    "errEndMean": 1.3333333333333333,
+    "errEndMax": 2,
+    "errLiveMean": 0.7466666666666667,
+    "errPctOfCrossed": 0.02962962962962963
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "sparse",
      "seed": 1,
      "duration": 600,
-     "truth": 42,
-     "counted": 41,
-     "accuracy": 0.9762,
+     "truth": 43,
+     "counted": 43,
+     "accuracy": 1.0,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 20,
-     "truthB": 22,
-     "countedA": 20,
-     "countedB": 21
+     "truthIn": 25,
+     "truthOut": 18,
+     "countedIn": 24,
+     "countedOut": 19,
+     "truthInside": 7,
+     "countedInside": 5,
+     "insideErrMean": 0.72,
+     "insideErrMax": 3,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 43,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "sparse",
      "seed": 2,
      "duration": 600,
-     "truth": 39,
+     "truth": 44,
      "counted": 42,
-     "accuracy": 0.9231,
+     "accuracy": 0.9545,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 15,
-     "truthB": 24,
-     "countedA": 15,
-     "countedB": 27
+     "truthIn": 25,
+     "truthOut": 19,
+     "countedIn": 24,
+     "countedOut": 18,
+     "truthInside": 6,
+     "countedInside": 6,
+     "insideErrMean": 0.67,
+     "insideErrMax": 2,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 44,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "sparse",
      "seed": 3,
      "duration": 600,
-     "truth": 40,
-     "counted": 39,
-     "accuracy": 0.975,
+     "truth": 48,
+     "counted": 52,
+     "accuracy": 0.9167,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 19,
-     "truthB": 21,
-     "countedA": 18,
-     "countedB": 21
+     "truthIn": 28,
+     "truthOut": 20,
+     "countedIn": 29,
+     "countedOut": 23,
+     "truthInside": 8,
+     "countedInside": 6,
+     "insideErrMean": 0.85,
+     "insideErrMax": 3,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 48,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -73,68 +132,127 @@
   "scenario": "normal",
   "description": "14/min, 25% groups, some vehicles",
   "v2": {
-   "truth": 597,
-   "counted": 565,
-   "accuracy": 0.9463986599664992,
-   "worstRun": 0.9267,
-   "vehiclesOverStrip": 118,
-   "lanes": {
-    "A": {
-     "truth": 278,
-     "counted": 267,
-     "accuracy": 0.960431654676259
+   "truth": 537,
+   "counted": 527,
+   "accuracy": 0.9813780260707635,
+   "worstRun": 0.9409,
+   "vehiclesOverStrip": 122,
+   "dirs": {
+    "in": {
+     "truth": 283,
+     "counted": 279,
+     "accuracy": 0.9858657243816255
     },
-    "B": {
-     "truth": 319,
-     "counted": 298,
-     "accuracy": 0.9341692789968652
+    "out": {
+     "truth": 254,
+     "counted": 248,
+     "accuracy": 0.9763779527559056
     }
    },
+   "inside": {
+    "truthEnd": [
+     6,
+     15,
+     8
+    ],
+    "countedEnd": [
+     10,
+     14,
+     7
+    ],
+    "errEndMean": 2.0,
+    "errEndMax": 4,
+    "errLiveMean": 2.51,
+    "errPctOfCrossed": 0.0111731843575419
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "normal",
      "seed": 1,
      "duration": 600,
-     "truth": 181,
-     "counted": 169,
-     "accuracy": 0.9337,
-     "vehicles": 41,
-     "vehiclesOverStrip": 41,
-     "truthA": 83,
-     "truthB": 98,
-     "countedA": 75,
-     "countedB": 94
+     "truth": 176,
+     "counted": 180,
+     "accuracy": 0.9773,
+     "vehicles": 42,
+     "vehiclesOverStrip": 42,
+     "truthIn": 91,
+     "truthOut": 85,
+     "countedIn": 95,
+     "countedOut": 85,
+     "truthInside": 6,
+     "countedInside": 10,
+     "insideErrMean": 2.62,
+     "insideErrMax": 10,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 176,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "normal",
      "seed": 2,
      "duration": 600,
-     "truth": 184,
-     "counted": 181,
-     "accuracy": 0.9837,
-     "vehicles": 39,
-     "vehiclesOverStrip": 39,
-     "truthA": 87,
-     "truthB": 97,
-     "countedA": 88,
-     "countedB": 93
+     "truth": 175,
+     "counted": 172,
+     "accuracy": 0.9829,
+     "vehicles": 45,
+     "vehiclesOverStrip": 45,
+     "truthIn": 95,
+     "truthOut": 80,
+     "countedIn": 93,
+     "countedOut": 79,
+     "truthInside": 15,
+     "countedInside": 14,
+     "insideErrMean": 1.22,
+     "insideErrMax": 7,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 175,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "normal",
      "seed": 3,
      "duration": 600,
-     "truth": 232,
-     "counted": 215,
-     "accuracy": 0.9267,
-     "vehicles": 38,
-     "vehiclesOverStrip": 38,
-     "truthA": 108,
-     "truthB": 124,
-     "countedA": 104,
-     "countedB": 111
+     "truth": 186,
+     "counted": 175,
+     "accuracy": 0.9409,
+     "vehicles": 35,
+     "vehiclesOverStrip": 35,
+     "truthIn": 97,
+     "truthOut": 89,
+     "countedIn": 91,
+     "countedOut": 84,
+     "truthInside": 8,
+     "countedInside": 7,
+     "insideErrMean": 3.69,
+     "insideErrMax": 11,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 186,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -143,68 +261,127 @@
   "scenario": "rush",
   "description": "36/min, groups, some vehicles",
   "v2": {
-   "truth": 1744,
-   "counted": 1750,
-   "accuracy": 0.9965596330275229,
-   "worstRun": 0.9747,
-   "vehiclesOverStrip": 101,
-   "lanes": {
-    "A": {
-     "truth": 900,
-     "counted": 889,
-     "accuracy": 0.9877777777777778
+   "truth": 1625,
+   "counted": 1573,
+   "accuracy": 0.968,
+   "worstRun": 0.9379,
+   "vehiclesOverStrip": 87,
+   "dirs": {
+    "in": {
+     "truth": 882,
+     "counted": 864,
+     "accuracy": 0.9795918367346939
     },
-    "B": {
-     "truth": 844,
-     "counted": 861,
-     "accuracy": 0.9798578199052133
+    "out": {
+     "truth": 743,
+     "counted": 709,
+     "accuracy": 0.9542395693135935
     }
    },
+   "inside": {
+    "truthEnd": [
+     60,
+     21,
+     58
+    ],
+    "countedEnd": [
+     56,
+     31,
+     69
+    ],
+    "errEndMean": 8.333333333333334,
+    "errEndMax": 11,
+    "errLiveMean": 7.183333333333334,
+    "errPctOfCrossed": 0.015384615384615385
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "rush",
      "seed": 1,
      "duration": 600,
-     "truth": 610,
-     "counted": 615,
-     "accuracy": 0.9918,
-     "vehicles": 34,
-     "vehiclesOverStrip": 34,
-     "truthA": 327,
-     "truthB": 283,
-     "countedA": 324,
-     "countedB": 291
+     "truth": 518,
+     "counted": 511,
+     "accuracy": 0.9865,
+     "vehicles": 32,
+     "vehiclesOverStrip": 32,
+     "truthIn": 289,
+     "truthOut": 229,
+     "countedIn": 283,
+     "countedOut": 228,
+     "truthInside": 60,
+     "countedInside": 56,
+     "insideErrMean": 6.08,
+     "insideErrMax": 18,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 518,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "rush",
      "seed": 2,
      "duration": 600,
-     "truth": 554,
-     "counted": 568,
-     "accuracy": 0.9747,
-     "vehicles": 35,
-     "vehiclesOverStrip": 35,
-     "truthA": 279,
-     "truthB": 275,
-     "countedA": 286,
-     "countedB": 282
+     "truth": 511,
+     "counted": 503,
+     "accuracy": 0.9843,
+     "vehicles": 34,
+     "vehiclesOverStrip": 34,
+     "truthIn": 266,
+     "truthOut": 245,
+     "countedIn": 267,
+     "countedOut": 236,
+     "truthInside": 21,
+     "countedInside": 31,
+     "insideErrMean": 4.51,
+     "insideErrMax": 20,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 511,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "rush",
      "seed": 3,
      "duration": 600,
-     "truth": 580,
-     "counted": 567,
-     "accuracy": 0.9776,
-     "vehicles": 32,
-     "vehiclesOverStrip": 32,
-     "truthA": 294,
-     "truthB": 286,
-     "countedA": 279,
-     "countedB": 288
+     "truth": 596,
+     "counted": 559,
+     "accuracy": 0.9379,
+     "vehicles": 21,
+     "vehiclesOverStrip": 21,
+     "truthIn": 327,
+     "truthOut": 269,
+     "countedIn": 314,
+     "countedOut": 245,
+     "truthInside": 58,
+     "countedInside": 69,
+     "insideErrMean": 10.96,
+     "insideErrMax": 23,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 596,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -213,68 +390,127 @@
   "scenario": "dense",
   "description": "75/min continuous flow, 40% groups",
   "v2": {
-   "truth": 3736,
-   "counted": 3751,
-   "accuracy": 0.9959850107066381,
-   "worstRun": 0.9668,
+   "truth": 3655,
+   "counted": 3620,
+   "accuracy": 0.9904240766073872,
+   "worstRun": 0.9868,
    "vehiclesOverStrip": 0,
-   "lanes": {
-    "A": {
-     "truth": 1887,
-     "counted": 1860,
-     "accuracy": 0.985691573926868
+   "dirs": {
+    "in": {
+     "truth": 1984,
+     "counted": 1983,
+     "accuracy": 0.9994959677419355
     },
-    "B": {
-     "truth": 1849,
-     "counted": 1891,
-     "accuracy": 0.9772850189291509
+    "out": {
+     "truth": 1671,
+     "counted": 1637,
+     "accuracy": 0.9796529024536206
     }
    },
+   "inside": {
+    "truthEnd": [
+     121,
+     66,
+     126
+    ],
+    "countedEnd": [
+     144,
+     74,
+     128
+    ],
+    "errEndMean": 11.0,
+    "errEndMax": 23,
+    "errLiveMean": 7.443333333333334,
+    "errPctOfCrossed": 0.009028727770177838
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "dense",
      "seed": 1,
      "duration": 600,
-     "truth": 1240,
-     "counted": 1211,
-     "accuracy": 0.9766,
+     "truth": 1237,
+     "counted": 1230,
+     "accuracy": 0.9943,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 616,
-     "truthB": 624,
-     "countedA": 597,
-     "countedB": 614
+     "truthIn": 679,
+     "truthOut": 558,
+     "countedIn": 687,
+     "countedOut": 543,
+     "truthInside": 121,
+     "countedInside": 144,
+     "insideErrMean": 8.64,
+     "insideErrMax": 28,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 1237,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "dense",
      "seed": 2,
      "duration": 600,
-     "truth": 1290,
-     "counted": 1294,
-     "accuracy": 0.9969,
+     "truth": 1210,
+     "counted": 1194,
+     "accuracy": 0.9868,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 667,
-     "truthB": 623,
-     "countedA": 655,
-     "countedB": 639
+     "truthIn": 638,
+     "truthOut": 572,
+     "countedIn": 634,
+     "countedOut": 560,
+     "truthInside": 66,
+     "countedInside": 74,
+     "insideErrMean": 8.39,
+     "insideErrMax": 26,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 1210,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "dense",
      "seed": 3,
      "duration": 600,
-     "truth": 1206,
-     "counted": 1246,
-     "accuracy": 0.9668,
+     "truth": 1208,
+     "counted": 1196,
+     "accuracy": 0.9901,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 604,
-     "truthB": 602,
-     "countedA": 608,
-     "countedB": 638
+     "truthIn": 667,
+     "truthOut": 541,
+     "countedIn": 662,
+     "countedOut": 534,
+     "truthInside": 126,
+     "countedInside": 128,
+     "insideErrMean": 5.3,
+     "insideErrMax": 21,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 1208,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -283,23 +519,40 @@
   "scenario": "festival",
   "description": "140/min crowd, 50% groups",
   "v2": {
-   "truth": 7626,
-   "counted": 7919,
-   "accuracy": 0.9615788093364804,
-   "worstRun": 0.94,
+   "truth": 7443,
+   "counted": 7271,
+   "accuracy": 0.9768910385597206,
+   "worstRun": 0.9707,
    "vehiclesOverStrip": 0,
-   "lanes": {
-    "A": {
-     "truth": 3836,
-     "counted": 3980,
-     "accuracy": 0.9624608967674662
+   "dirs": {
+    "in": {
+     "truth": 3900,
+     "counted": 3810,
+     "accuracy": 0.9769230769230769
     },
-    "B": {
-     "truth": 3790,
-     "counted": 3939,
-     "accuracy": 0.9606860158311346
+    "out": {
+     "truth": 3543,
+     "counted": 3461,
+     "accuracy": 0.9768557719446797
     }
    },
+   "inside": {
+    "truthEnd": [
+     101,
+     130,
+     126
+    ],
+    "countedEnd": [
+     71,
+     120,
+     158
+    ],
+    "errEndMean": 24.0,
+    "errEndMax": 32,
+    "errLiveMean": 16.47,
+    "errPctOfCrossed": 0.009673518742442563
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
@@ -307,44 +560,86 @@
      "seed": 1,
      "duration": 600,
      "truth": 2593,
-     "counted": 2679,
-     "accuracy": 0.9668,
+     "counted": 2517,
+     "accuracy": 0.9707,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 1295,
-     "truthB": 1298,
-     "countedA": 1346,
-     "countedB": 1333
+     "truthIn": 1347,
+     "truthOut": 1246,
+     "countedIn": 1294,
+     "countedOut": 1223,
+     "truthInside": 101,
+     "countedInside": 71,
+     "insideErrMean": 16.63,
+     "insideErrMax": 50,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 2593,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "festival",
      "seed": 2,
      "duration": 600,
-     "truth": 2516,
-     "counted": 2667,
-     "accuracy": 0.94,
+     "truth": 2396,
+     "counted": 2338,
+     "accuracy": 0.9758,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 1274,
-     "truthB": 1242,
-     "countedA": 1335,
-     "countedB": 1332
+     "truthIn": 1263,
+     "truthOut": 1133,
+     "countedIn": 1229,
+     "countedOut": 1109,
+     "truthInside": 130,
+     "countedInside": 120,
+     "insideErrMean": 14.21,
+     "insideErrMax": 41,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 2396,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "festival",
      "seed": 3,
      "duration": 600,
-     "truth": 2517,
-     "counted": 2573,
-     "accuracy": 0.9778,
+     "truth": 2454,
+     "counted": 2416,
+     "accuracy": 0.9845,
      "vehicles": 0,
      "vehiclesOverStrip": 0,
-     "truthA": 1267,
-     "truthB": 1250,
-     "countedA": 1299,
-     "countedB": 1274
+     "truthIn": 1290,
+     "truthOut": 1164,
+     "countedIn": 1287,
+     "countedOut": 1129,
+     "truthInside": 126,
+     "countedInside": 158,
+     "insideErrMean": 18.57,
+     "insideErrMax": 65,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 2454,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -353,23 +648,40 @@
   "scenario": "signal",
   "description": "platoons of ~45 every 60 s + traffic",
   "v2": {
-   "truth": 1368,
-   "counted": 1307,
-   "accuracy": 0.9554093567251462,
-   "worstRun": 0.9239,
-   "vehiclesOverStrip": 198,
-   "lanes": {
-    "A": {
-     "truth": 669,
-     "counted": 631,
-     "accuracy": 0.9431988041853513
+   "truth": 1364,
+   "counted": 1338,
+   "accuracy": 0.9809384164222874,
+   "worstRun": 0.9383,
+   "vehiclesOverStrip": 178,
+   "dirs": {
+    "in": {
+     "truth": 741,
+     "counted": 746,
+     "accuracy": 0.9932523616734144
     },
-    "B": {
-     "truth": 699,
-     "counted": 676,
-     "accuracy": 0.9670958512160229
+    "out": {
+     "truth": 623,
+     "counted": 592,
+     "accuracy": 0.9502407704654896
     }
    },
+   "inside": {
+    "truthEnd": [
+     47,
+     25,
+     46
+    ],
+    "countedEnd": [
+     48,
+     50,
+     56
+    ],
+    "errEndMean": 12.0,
+    "errEndMax": 25,
+    "errLiveMean": 6.623333333333332,
+    "errPctOfCrossed": 0.026392961876832845
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
@@ -377,44 +689,86 @@
      "seed": 1,
      "duration": 600,
      "truth": 453,
-     "counted": 433,
-     "accuracy": 0.9558,
-     "vehicles": 66,
-     "vehiclesOverStrip": 66,
-     "truthA": 199,
-     "truthB": 254,
-     "countedA": 181,
-     "countedB": 252
+     "counted": 448,
+     "accuracy": 0.989,
+     "vehicles": 61,
+     "vehiclesOverStrip": 61,
+     "truthIn": 250,
+     "truthOut": 203,
+     "countedIn": 248,
+     "countedOut": 200,
+     "truthInside": 47,
+     "countedInside": 48,
+     "insideErrMean": 3.28,
+     "insideErrMax": 25,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 453,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "signal",
      "seed": 2,
      "duration": 600,
-     "truth": 455,
-     "counted": 449,
-     "accuracy": 0.9868,
-     "vehicles": 72,
-     "vehiclesOverStrip": 72,
-     "truthA": 222,
-     "truthB": 233,
-     "countedA": 225,
-     "countedB": 224
+     "truth": 457,
+     "counted": 464,
+     "accuracy": 0.9847,
+     "vehicles": 66,
+     "vehiclesOverStrip": 66,
+     "truthIn": 241,
+     "truthOut": 216,
+     "countedIn": 257,
+     "countedOut": 207,
+     "truthInside": 25,
+     "countedInside": 50,
+     "insideErrMean": 12.92,
+     "insideErrMax": 33,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 457,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "signal",
      "seed": 3,
      "duration": 600,
-     "truth": 460,
-     "counted": 425,
-     "accuracy": 0.9239,
-     "vehicles": 60,
-     "vehiclesOverStrip": 60,
-     "truthA": 248,
-     "truthB": 212,
-     "countedA": 225,
-     "countedB": 200
+     "truth": 454,
+     "counted": 426,
+     "accuracy": 0.9383,
+     "vehicles": 51,
+     "vehiclesOverStrip": 51,
+     "truthIn": 250,
+     "truthOut": 204,
+     "countedIn": 241,
+     "countedOut": 185,
+     "truthInside": 46,
+     "countedInside": 56,
+     "insideErrMean": 3.67,
+     "insideErrMax": 27,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 454,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -423,68 +777,127 @@
   "scenario": "waiting",
   "description": "30% stop on the strip 3-25 s",
   "v2": {
-   "truth": 469,
-   "counted": 463,
-   "accuracy": 0.9872068230277186,
-   "worstRun": 0.9722,
-   "vehiclesOverStrip": 60,
-   "lanes": {
-    "A": {
-     "truth": 239,
-     "counted": 223,
-     "accuracy": 0.9330543933054394
+   "truth": 485,
+   "counted": 465,
+   "accuracy": 0.9587628865979382,
+   "worstRun": 0.9167,
+   "vehiclesOverStrip": 56,
+   "dirs": {
+    "in": {
+     "truth": 261,
+     "counted": 257,
+     "accuracy": 0.9846743295019157
     },
-    "B": {
-     "truth": 230,
-     "counted": 240,
-     "accuracy": 0.9565217391304348
+    "out": {
+     "truth": 224,
+     "counted": 208,
+     "accuracy": 0.9285714285714286
     }
    },
+   "inside": {
+    "truthEnd": [
+     3,
+     10,
+     24
+    ],
+    "countedEnd": [
+     14,
+     17,
+     18
+    ],
+    "errEndMean": 8.0,
+    "errEndMax": 11,
+    "errLiveMean": 4.19,
+    "errPctOfCrossed": 0.049484536082474224
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "waiting",
      "seed": 1,
      "duration": 600,
-     "truth": 174,
-     "counted": 174,
-     "accuracy": 1.0,
-     "vehicles": 22,
-     "vehiclesOverStrip": 22,
-     "truthA": 96,
-     "truthB": 78,
-     "countedA": 95,
-     "countedB": 79
+     "truth": 145,
+     "counted": 142,
+     "accuracy": 0.9793,
+     "vehicles": 16,
+     "vehiclesOverStrip": 16,
+     "truthIn": 74,
+     "truthOut": 71,
+     "countedIn": 78,
+     "countedOut": 64,
+     "truthInside": 3,
+     "countedInside": 14,
+     "insideErrMean": 5.15,
+     "insideErrMax": 16,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 145,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "waiting",
      "seed": 2,
      "duration": 600,
-     "truth": 144,
-     "counted": 140,
-     "accuracy": 0.9722,
+     "truth": 180,
+     "counted": 165,
+     "accuracy": 0.9167,
      "vehicles": 17,
      "vehiclesOverStrip": 17,
-     "truthA": 70,
-     "truthB": 74,
-     "countedA": 62,
-     "countedB": 78
+     "truthIn": 95,
+     "truthOut": 85,
+     "countedIn": 91,
+     "countedOut": 74,
+     "truthInside": 10,
+     "countedInside": 17,
+     "insideErrMean": 3.26,
+     "insideErrMax": 14,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 180,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "waiting",
      "seed": 3,
      "duration": 600,
-     "truth": 151,
-     "counted": 149,
-     "accuracy": 0.9868,
-     "vehicles": 21,
-     "vehiclesOverStrip": 21,
-     "truthA": 73,
-     "truthB": 78,
-     "countedA": 66,
-     "countedB": 83
+     "truth": 160,
+     "counted": 158,
+     "accuracy": 0.9875,
+     "vehicles": 23,
+     "vehiclesOverStrip": 23,
+     "truthIn": 92,
+     "truthOut": 68,
+     "countedIn": 88,
+     "countedOut": 70,
+     "truthInside": 24,
+     "countedInside": 18,
+     "insideErrMean": 4.16,
+     "insideErrMax": 14,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 160,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -493,68 +906,127 @@
   "scenario": "mixed",
   "description": "18 people/min + 10 vehicles/min, 20% stop on strip",
   "v2": {
-   "truth": 851,
-   "counted": 806,
-   "accuracy": 0.9471210340775558,
-   "worstRun": 0.9041,
-   "vehiclesOverStrip": 349,
-   "lanes": {
-    "A": {
-     "truth": 422,
-     "counted": 399,
-     "accuracy": 0.9454976303317536
+   "truth": 870,
+   "counted": 841,
+   "accuracy": 0.9666666666666667,
+   "worstRun": 0.9272,
+   "vehiclesOverStrip": 291,
+   "dirs": {
+    "in": {
+     "truth": 458,
+     "counted": 438,
+     "accuracy": 0.9563318777292577
     },
-    "B": {
-     "truth": 429,
-     "counted": 407,
-     "accuracy": 0.9487179487179487
+    "out": {
+     "truth": 412,
+     "counted": 403,
+     "accuracy": 0.9781553398058253
     }
    },
+   "inside": {
+    "truthEnd": [
+     13,
+     7,
+     26
+    ],
+    "countedEnd": [
+     16,
+     15,
+     4
+    ],
+    "errEndMean": 11.0,
+    "errEndMax": 22,
+    "errLiveMean": 6.59,
+    "errPctOfCrossed": 0.03793103448275862
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
      "scenario": "mixed",
      "seed": 1,
      "duration": 600,
-     "truth": 276,
-     "counted": 261,
-     "accuracy": 0.9457,
-     "vehicles": 115,
-     "vehiclesOverStrip": 115,
-     "truthA": 148,
-     "truthB": 128,
-     "countedA": 140,
-     "countedB": 121
+     "truth": 249,
+     "counted": 244,
+     "accuracy": 0.9799,
+     "vehicles": 88,
+     "vehiclesOverStrip": 88,
+     "truthIn": 131,
+     "truthOut": 118,
+     "countedIn": 130,
+     "countedOut": 114,
+     "truthInside": 13,
+     "countedInside": 16,
+     "insideErrMean": 2.46,
+     "insideErrMax": 8,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 249,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "mixed",
      "seed": 2,
      "duration": 600,
-     "truth": 304,
-     "counted": 300,
-     "accuracy": 0.9868,
-     "vehicles": 123,
-     "vehiclesOverStrip": 123,
-     "truthA": 159,
-     "truthB": 145,
-     "countedA": 150,
-     "countedB": 150
+     "truth": 319,
+     "counted": 317,
+     "accuracy": 0.9937,
+     "vehicles": 106,
+     "vehiclesOverStrip": 106,
+     "truthIn": 163,
+     "truthOut": 156,
+     "countedIn": 166,
+     "countedOut": 151,
+     "truthInside": 7,
+     "countedInside": 15,
+     "insideErrMean": 4.84,
+     "insideErrMax": 14,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 319,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
      "scenario": "mixed",
      "seed": 3,
      "duration": 600,
-     "truth": 271,
-     "counted": 245,
-     "accuracy": 0.9041,
-     "vehicles": 111,
-     "vehiclesOverStrip": 111,
-     "truthA": 115,
-     "truthB": 156,
-     "countedA": 109,
-     "countedB": 136
+     "truth": 302,
+     "counted": 280,
+     "accuracy": 0.9272,
+     "vehicles": 97,
+     "vehiclesOverStrip": 97,
+     "truthIn": 164,
+     "truthOut": 138,
+     "countedIn": 142,
+     "countedOut": 138,
+     "truthInside": 26,
+     "countedInside": 4,
+     "insideErrMean": 12.47,
+     "insideErrMax": 22,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 302,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     }
    ]
   }
@@ -564,22 +1036,39 @@
   "description": "vehicles only (cars, motos, autos, buses, trucks)",
   "v2": {
    "truth": 0,
-   "counted": 43,
+   "counted": 70,
    "accuracy": null,
    "worstRun": null,
    "vehiclesOverStrip": 728,
-   "lanes": {
-    "A": {
+   "dirs": {
+    "in": {
      "truth": 0,
-     "counted": 15,
+     "counted": 35,
      "accuracy": null
     },
-    "B": {
+    "out": {
      "truth": 0,
-     "counted": 28,
+     "counted": 35,
      "accuracy": null
     }
    },
+   "inside": {
+    "truthEnd": [
+     0,
+     0,
+     0
+    ],
+    "countedEnd": [
+     7,
+     2,
+     3
+    ],
+    "errEndMean": 4.0,
+    "errEndMax": 7,
+    "errLiveMean": 3.15,
+    "errPctOfCrossed": null
+   },
+   "turnedBack": 0,
    "runs": [
     {
      "firmware": "v2",
@@ -587,14 +1076,28 @@
      "seed": 1,
      "duration": 600,
      "truth": 0,
-     "counted": 16,
+     "counted": 30,
      "accuracy": 0.0,
      "vehicles": 280,
      "vehiclesOverStrip": 280,
-     "truthA": 0,
-     "truthB": 0,
-     "countedA": 5,
-     "countedB": 11
+     "truthIn": 0,
+     "truthOut": 0,
+     "countedIn": 18,
+     "countedOut": 12,
+     "truthInside": 0,
+     "countedInside": 7,
+     "insideErrMean": 5.82,
+     "insideErrMax": 11,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
@@ -602,14 +1105,28 @@
      "seed": 2,
      "duration": 600,
      "truth": 0,
-     "counted": 9,
+     "counted": 21,
      "accuracy": 0.0,
      "vehicles": 228,
      "vehiclesOverStrip": 228,
-     "truthA": 0,
-     "truthB": 0,
-     "countedA": 5,
-     "countedB": 4
+     "truthIn": 0,
+     "truthOut": 0,
+     "countedIn": 6,
+     "countedOut": 15,
+     "truthInside": 0,
+     "countedInside": 2,
+     "insideErrMean": 1.25,
+     "insideErrMax": 3,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
     },
     {
      "firmware": "v2",
@@ -617,14 +1134,1060 @@
      "seed": 3,
      "duration": 600,
      "truth": 0,
-     "counted": 18,
+     "counted": 19,
      "accuracy": 0.0,
      "vehicles": 220,
      "vehiclesOverStrip": 220,
-     "truthA": 0,
-     "truthB": 0,
-     "countedA": 5,
-     "countedB": 13
+     "truthIn": 0,
+     "truthOut": 0,
+     "countedIn": 11,
+     "countedOut": 8,
+     "truthInside": 0,
+     "countedInside": 3,
+     "insideErrMean": 2.38,
+     "insideErrMax": 7,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 0.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "weave",
+  "description": "6/min, all meander (heading +-10..30 deg)",
+  "v2": {
+   "truth": 186,
+   "counted": 185,
+   "accuracy": 0.9946236559139785,
+   "worstRun": 0.9355,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 102,
+     "counted": 102,
+     "accuracy": 1.0
+    },
+    "out": {
+     "truth": 84,
+     "counted": 83,
+     "accuracy": 0.9880952380952381
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     9,
+     3,
+     6
+    ],
+    "countedEnd": [
+     12,
+     3,
+     6
+    ],
+    "errEndMean": 1.0,
+    "errEndMax": 3,
+    "errLiveMean": 0.85,
+    "errPctOfCrossed": 0.016129032258064516
+   },
+   "turnedBack": 0,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "weave",
+     "seed": 1,
+     "duration": 600,
+     "truth": 79,
+     "counted": 76,
+     "accuracy": 0.962,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 44,
+     "truthOut": 35,
+     "countedIn": 44,
+     "countedOut": 32,
+     "truthInside": 9,
+     "countedInside": 12,
+     "insideErrMean": 1.35,
+     "insideErrMax": 4,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 79,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "weave",
+     "seed": 2,
+     "duration": 600,
+     "truth": 45,
+     "counted": 43,
+     "accuracy": 0.9556,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 24,
+     "truthOut": 21,
+     "countedIn": 22,
+     "countedOut": 21,
+     "truthInside": 3,
+     "countedInside": 3,
+     "insideErrMean": 0.51,
+     "insideErrMax": 3,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 45,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "weave",
+     "seed": 3,
+     "duration": 600,
+     "truth": 62,
+     "counted": 66,
+     "accuracy": 0.9355,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 34,
+     "truthOut": 28,
+     "countedIn": 36,
+     "countedOut": 30,
+     "truthInside": 6,
+     "countedInside": 6,
+     "insideErrMean": 0.69,
+     "insideErrMax": 2,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 62,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "drift",
+  "description": "6/min, all cut diagonally across the marg",
+  "v2": {
+   "truth": 168,
+   "counted": 163,
+   "accuracy": 0.9702380952380952,
+   "worstRun": 0.9123,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 90,
+     "counted": 83,
+     "accuracy": 0.9222222222222223
+    },
+    "out": {
+     "truth": 78,
+     "counted": 80,
+     "accuracy": 0.9743589743589743
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     7,
+     4,
+     1
+    ],
+    "countedEnd": [
+     6,
+     0,
+     2
+    ],
+    "errEndMean": 2.0,
+    "errEndMax": 4,
+    "errLiveMean": 1.5366666666666668,
+    "errPctOfCrossed": 0.03571428571428571
+   },
+   "turnedBack": 0,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "drift",
+     "seed": 1,
+     "duration": 600,
+     "truth": 57,
+     "counted": 52,
+     "accuracy": 0.9123,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 32,
+     "truthOut": 25,
+     "countedIn": 29,
+     "countedOut": 23,
+     "truthInside": 7,
+     "countedInside": 6,
+     "insideErrMean": 0.87,
+     "insideErrMax": 4,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 57,
+      "jostle": 0,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "drift",
+     "seed": 2,
+     "duration": 600,
+     "truth": 50,
+     "counted": 47,
+     "accuracy": 0.94,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 27,
+     "truthOut": 23,
+     "countedIn": 21,
+     "countedOut": 26,
+     "truthInside": 4,
+     "countedInside": 0,
+     "insideErrMean": 2.89,
+     "insideErrMax": 6,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 50,
+      "jostle": 0,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "drift",
+     "seed": 3,
+     "duration": 600,
+     "truth": 61,
+     "counted": 64,
+     "accuracy": 0.9508,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 31,
+     "truthOut": 30,
+     "countedIn": 33,
+     "countedOut": 31,
+     "truthInside": 1,
+     "countedInside": 2,
+     "insideErrMean": 0.85,
+     "insideErrMax": 4,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 61,
+      "jostle": 0,
+      "uturn": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "jostle",
+  "description": "6/min, all jostled: random heading, sidesteps",
+  "v2": {
+   "truth": 200,
+   "counted": 227,
+   "accuracy": 0.865,
+   "worstRun": 0.8154,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 111,
+     "counted": 128,
+     "accuracy": 0.8468468468468469
+    },
+    "out": {
+     "truth": 89,
+     "counted": 99,
+     "accuracy": 0.8876404494382022
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     6,
+     7,
+     9
+    ],
+    "countedEnd": [
+     6,
+     14,
+     10
+    ],
+    "errEndMean": 2.6666666666666665,
+    "errEndMax": 7,
+    "errLiveMean": 2.24,
+    "errPctOfCrossed": 0.04
+   },
+   "turnedBack": 0,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "jostle",
+     "seed": 1,
+     "duration": 600,
+     "truth": 72,
+     "counted": 76,
+     "accuracy": 0.9444,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 39,
+     "truthOut": 33,
+     "countedIn": 41,
+     "countedOut": 35,
+     "truthInside": 6,
+     "countedInside": 6,
+     "insideErrMean": 0.73,
+     "insideErrMax": 3,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 72,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "jostle",
+     "seed": 2,
+     "duration": 600,
+     "truth": 63,
+     "counted": 74,
+     "accuracy": 0.8254,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 35,
+     "truthOut": 28,
+     "countedIn": 44,
+     "countedOut": 30,
+     "truthInside": 7,
+     "countedInside": 14,
+     "insideErrMean": 4.58,
+     "insideErrMax": 7,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 63,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "jostle",
+     "seed": 3,
+     "duration": 600,
+     "truth": 65,
+     "counted": 77,
+     "accuracy": 0.8154,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 37,
+     "truthOut": 28,
+     "countedIn": 43,
+     "countedOut": 34,
+     "truthInside": 9,
+     "countedInside": 10,
+     "insideErrMean": 1.41,
+     "insideErrMax": 5,
+     "touchedNotCrossed": 0,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 0,
+      "drift": 0,
+      "jostle": 65,
+      "uturn": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "uturn",
+  "description": "6/min, all step onto the strip and turn back",
+  "v2": {
+   "truth": 18,
+   "counted": 221,
+   "accuracy": -10.277777777777779,
+   "worstRun": -11.8,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 13,
+     "counted": 151,
+     "accuracy": -9.615384615384615
+    },
+    "out": {
+     "truth": 5,
+     "counted": 70,
+     "accuracy": -12.0
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     3,
+     3,
+     2
+    ],
+    "countedEnd": [
+     37,
+     33,
+     11
+    ],
+    "errEndMean": 24.333333333333332,
+    "errEndMax": 34,
+    "errLiveMean": 14.166666666666666,
+    "errPctOfCrossed": 4.055555555555555
+   },
+   "turnedBack": 183,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "uturn",
+     "seed": 1,
+     "duration": 600,
+     "truth": 5,
+     "counted": 69,
+     "accuracy": -11.8,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 4,
+     "truthOut": 1,
+     "countedIn": 53,
+     "countedOut": 16,
+     "truthInside": 3,
+     "countedInside": 37,
+     "insideErrMean": 12.46,
+     "insideErrMax": 35,
+     "touchedNotCrossed": 63,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 2,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 3
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "uturn",
+     "seed": 2,
+     "duration": 600,
+     "truth": 7,
+     "counted": 95,
+     "accuracy": -11.5714,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 5,
+     "truthOut": 2,
+     "countedIn": 64,
+     "countedOut": 31,
+     "truthInside": 3,
+     "countedInside": 33,
+     "insideErrMean": 17.66,
+     "insideErrMax": 32,
+     "touchedNotCrossed": 73,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 2,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 5
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "uturn",
+     "seed": 3,
+     "duration": 600,
+     "truth": 6,
+     "counted": 57,
+     "accuracy": -7.5,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 4,
+     "truthOut": 2,
+     "countedIn": 34,
+     "countedOut": 23,
+     "truthInside": 2,
+     "countedInside": 11,
+     "insideErrMean": 12.38,
+     "insideErrMax": 19,
+     "touchedNotCrossed": 47,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 2,
+      "drift": 0,
+      "jostle": 0,
+      "uturn": 4
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "meander",
+  "description": "14/min, 100% non-linear mix, groups, vehicles",
+  "v2": {
+   "truth": 596,
+   "counted": 680,
+   "accuracy": 0.8590604026845637,
+   "worstRun": 0.7527,
+   "vehiclesOverStrip": 118,
+   "dirs": {
+    "in": {
+     "truth": 324,
+     "counted": 372,
+     "accuracy": 0.8518518518518519
+    },
+    "out": {
+     "truth": 272,
+     "counted": 308,
+     "accuracy": 0.8676470588235294
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     18,
+     18,
+     16
+    ],
+    "countedEnd": [
+     21,
+     21,
+     23
+    ],
+    "errEndMean": 4.333333333333333,
+    "errEndMax": 7,
+    "errLiveMean": 4.426666666666667,
+    "errPctOfCrossed": 0.02181208053691275
+   },
+   "turnedBack": 28,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "meander",
+     "seed": 1,
+     "duration": 600,
+     "truth": 182,
+     "counted": 227,
+     "accuracy": 0.7527,
+     "vehicles": 45,
+     "vehiclesOverStrip": 45,
+     "truthIn": 100,
+     "truthOut": 82,
+     "countedIn": 124,
+     "countedOut": 103,
+     "truthInside": 18,
+     "countedInside": 21,
+     "insideErrMean": 3.3,
+     "insideErrMax": 10,
+     "touchedNotCrossed": 11,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 36,
+      "drift": 33,
+      "jostle": 113,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "meander",
+     "seed": 2,
+     "duration": 600,
+     "truth": 222,
+     "counted": 260,
+     "accuracy": 0.8288,
+     "vehicles": 34,
+     "vehiclesOverStrip": 34,
+     "truthIn": 120,
+     "truthOut": 102,
+     "countedIn": 140,
+     "countedOut": 120,
+     "truthInside": 18,
+     "countedInside": 21,
+     "insideErrMean": 3.34,
+     "insideErrMax": 11,
+     "touchedNotCrossed": 9,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 38,
+      "drift": 37,
+      "jostle": 144,
+      "uturn": 3
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "meander",
+     "seed": 3,
+     "duration": 600,
+     "truth": 192,
+     "counted": 193,
+     "accuracy": 0.9948,
+     "vehicles": 39,
+     "vehiclesOverStrip": 39,
+     "truthIn": 104,
+     "truthOut": 88,
+     "countedIn": 108,
+     "countedOut": 85,
+     "truthInside": 16,
+     "countedInside": 23,
+     "insideErrMean": 6.64,
+     "insideErrMax": 17,
+     "touchedNotCrossed": 8,
+     "nonlinFrac": 1.0,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 0,
+      "weave": 36,
+      "drift": 33,
+      "jostle": 123,
+      "uturn": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "kumbh",
+  "description": "140/min crowd, 50% groups, 60% non-linear",
+  "v2": {
+   "truth": 7382,
+   "counted": 7896,
+   "accuracy": 0.9303711731238147,
+   "worstRun": 0.9097,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 3938,
+     "counted": 4231,
+     "accuracy": 0.925596749619096
+    },
+    "out": {
+     "truth": 3444,
+     "counted": 3665,
+     "accuracy": 0.9358304297328688
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     135,
+     236,
+     123
+    ],
+    "countedEnd": [
+     174,
+     249,
+     143
+    ],
+    "errEndMean": 24.0,
+    "errEndMax": 39,
+    "errLiveMean": 16.683333333333334,
+    "errPctOfCrossed": 0.009753454348415064
+   },
+   "turnedBack": 98,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "kumbh",
+     "seed": 1,
+     "duration": 600,
+     "truth": 2447,
+     "counted": 2668,
+     "accuracy": 0.9097,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 1291,
+     "truthOut": 1156,
+     "countedIn": 1421,
+     "countedOut": 1247,
+     "truthInside": 135,
+     "countedInside": 174,
+     "insideErrMean": 31.26,
+     "insideErrMax": 92,
+     "touchedNotCrossed": 36,
+     "nonlinFrac": 0.6,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 998,
+      "weave": 127,
+      "drift": 120,
+      "jostle": 1201,
+      "uturn": 1
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "kumbh",
+     "seed": 2,
+     "duration": 600,
+     "truth": 2534,
+     "counted": 2713,
+     "accuracy": 0.9294,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 1385,
+     "truthOut": 1149,
+     "countedIn": 1481,
+     "countedOut": 1232,
+     "truthInside": 236,
+     "countedInside": 249,
+     "insideErrMean": 8.72,
+     "insideErrMax": 44,
+     "touchedNotCrossed": 33,
+     "nonlinFrac": 0.6,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 1077,
+      "weave": 159,
+      "drift": 136,
+      "jostle": 1157,
+      "uturn": 5
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "kumbh",
+     "seed": 3,
+     "duration": 600,
+     "truth": 2401,
+     "counted": 2515,
+     "accuracy": 0.9525,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 1262,
+     "truthOut": 1139,
+     "countedIn": 1329,
+     "countedOut": 1186,
+     "truthInside": 123,
+     "countedInside": 143,
+     "insideErrMean": 10.07,
+     "insideErrMax": 38,
+     "touchedNotCrossed": 29,
+     "nonlinFrac": 0.6,
+     "inboundFrac": 0.5,
+     "truthByPath": {
+      "straight": 895,
+      "weave": 126,
+      "drift": 118,
+      "jostle": 1260,
+      "uturn": 2
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "snan",
+  "description": "bathing rush: 60/min, 85% into the ghat, 40% non-linear",
+  "v2": {
+   "truth": 2988,
+   "counted": 3167,
+   "accuracy": 0.9400937081659974,
+   "worstRun": 0.9305,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 2562,
+     "counted": 2719,
+     "accuracy": 0.9387197501951601
+    },
+    "out": {
+     "truth": 426,
+     "counted": 448,
+     "accuracy": 0.9483568075117371
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     700,
+     719,
+     717
+    ],
+    "countedEnd": [
+     745,
+     758,
+     768
+    ],
+    "errEndMean": 45.0,
+    "errEndMax": 51,
+    "errLiveMean": 20.58666666666667,
+    "errPctOfCrossed": 0.045180722891566265
+   },
+   "turnedBack": 41,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "snan",
+     "seed": 1,
+     "duration": 600,
+     "truth": 976,
+     "counted": 1029,
+     "accuracy": 0.9457,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 838,
+     "truthOut": 138,
+     "countedIn": 887,
+     "countedOut": 142,
+     "truthInside": 700,
+     "countedInside": 745,
+     "insideErrMean": 15.8,
+     "insideErrMax": 50,
+     "touchedNotCrossed": 11,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.85,
+     "truthByPath": {
+      "straight": 571,
+      "weave": 45,
+      "drift": 48,
+      "jostle": 311,
+      "uturn": 1
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "snan",
+     "seed": 2,
+     "duration": 600,
+     "truth": 1019,
+     "counted": 1076,
+     "accuracy": 0.9441,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 869,
+     "truthOut": 150,
+     "countedIn": 917,
+     "countedOut": 159,
+     "truthInside": 719,
+     "countedInside": 758,
+     "insideErrMean": 23.3,
+     "insideErrMax": 45,
+     "touchedNotCrossed": 15,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.85,
+     "truthByPath": {
+      "straight": 619,
+      "weave": 52,
+      "drift": 37,
+      "jostle": 310,
+      "uturn": 1
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "snan",
+     "seed": 3,
+     "duration": 600,
+     "truth": 993,
+     "counted": 1062,
+     "accuracy": 0.9305,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 855,
+     "truthOut": 138,
+     "countedIn": 915,
+     "countedOut": 147,
+     "truthInside": 717,
+     "countedInside": 768,
+     "insideErrMean": 22.66,
+     "insideErrMax": 57,
+     "touchedNotCrossed": 15,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.85,
+     "truthByPath": {
+      "straight": 629,
+      "weave": 55,
+      "drift": 46,
+      "jostle": 262,
+      "uturn": 1
+     }
+    }
+   ]
+  }
+ },
+ {
+  "scenario": "return",
+  "description": "after the snan: 60/min, 85% out of the ghat, 40% non-linear",
+  "v2": {
+   "truth": 2902,
+   "counted": 2982,
+   "accuracy": 0.972432804962095,
+   "worstRun": 0.9628,
+   "vehiclesOverStrip": 0,
+   "dirs": {
+    "in": {
+     "truth": 416,
+     "counted": 417,
+     "accuracy": 0.9975961538461539
+    },
+    "out": {
+     "truth": 2486,
+     "counted": 2565,
+     "accuracy": 0.9682220434432823
+    }
+   },
+   "inside": {
+    "truthEnd": [
+     -669,
+     -740,
+     -661
+    ],
+    "countedEnd": [
+     -698,
+     -769,
+     -681
+    ],
+    "errEndMean": 26.0,
+    "errEndMax": 29,
+    "errLiveMean": 9.75,
+    "errPctOfCrossed": 0.026878015161957272
+   },
+   "turnedBack": 37,
+   "runs": [
+    {
+     "firmware": "v2",
+     "scenario": "return",
+     "seed": 1,
+     "duration": 600,
+     "truth": 911,
+     "counted": 942,
+     "accuracy": 0.966,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 121,
+     "truthOut": 790,
+     "countedIn": 122,
+     "countedOut": 820,
+     "truthInside": -669,
+     "countedInside": -698,
+     "insideErrMean": 13.85,
+     "insideErrMax": 28,
+     "touchedNotCrossed": 17,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.15,
+     "truthByPath": {
+      "straight": 526,
+      "weave": 38,
+      "drift": 44,
+      "jostle": 303,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "return",
+     "seed": 2,
+     "duration": 600,
+     "truth": 994,
+     "counted": 1031,
+     "accuracy": 0.9628,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 127,
+     "truthOut": 867,
+     "countedIn": 131,
+     "countedOut": 900,
+     "truthInside": -740,
+     "countedInside": -769,
+     "insideErrMean": 7.34,
+     "insideErrMax": 26,
+     "touchedNotCrossed": 8,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.15,
+     "truthByPath": {
+      "straight": 576,
+      "weave": 49,
+      "drift": 45,
+      "jostle": 324,
+      "uturn": 0
+     }
+    },
+    {
+     "firmware": "v2",
+     "scenario": "return",
+     "seed": 3,
+     "duration": 600,
+     "truth": 997,
+     "counted": 1009,
+     "accuracy": 0.988,
+     "vehicles": 0,
+     "vehiclesOverStrip": 0,
+     "truthIn": 168,
+     "truthOut": 829,
+     "countedIn": 164,
+     "countedOut": 845,
+     "truthInside": -661,
+     "countedInside": -681,
+     "insideErrMean": 8.06,
+     "insideErrMax": 28,
+     "touchedNotCrossed": 12,
+     "nonlinFrac": 0.4,
+     "inboundFrac": 0.15,
+     "truthByPath": {
+      "straight": 600,
+      "weave": 60,
+      "drift": 45,
+      "jostle": 291,
+      "uturn": 1
+     }
     }
    ]
   }

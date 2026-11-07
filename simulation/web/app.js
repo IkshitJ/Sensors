@@ -1,25 +1,30 @@
 'use strict';
 // ---------------------------------------------------------------------------
-//  Zebra crossing simulator UI. All physics and the Arduino firmware run in the
+//  Ram Ghat gate simulator UI. All physics and the Arduino firmware run in the
 //  native simulator process; this page only renders frames and sends commands.
 //
-//  Layout: the sensor strip lies on the zebra crossing and spans both lanes
-//  (14 pads x 0.5 m across the road, 1 m along it). People and vehicles move
-//  along the lanes: lane A (bottom, y > 0) towards the right, lane B towards
-//  the left.
+//  Scene (top-down): Ramghat Marg runs left-right. On the LEFT are the Ram
+//  Ghat premises: the plaza, the stone steps and the Shipra river. On the
+//  RIGHT the marg leads away towards Dani Gate / Mahakaleshwar. As at
+//  Simhastha 2016, a barricade splits the marg into two one-way corridors of
+//  7 m: the ENTRY corridor (top, everyone walks <- into the premises) and the
+//  EXIT corridor (bottom, everyone walks -> out). Each corridor has its own
+//  gate with a sensor strip of 14 plates x 0.5 m across it, 1 m along it,
+//  and its own Arduino; the two boards share their counts over a cable.
 // ---------------------------------------------------------------------------
 const $ = (id) => document.getElementById(id);
-const NUM_PADS = 14, PER_LANE = 7, PAD_W = 0.5;
-const STRIP_X0 = 1.5, STRIP_X1 = 2.5, STRIP_Y0 = -3.5;
+const NUM_STRIPS = 2, NUM_PADS = 14, PAD_W = 0.5;
+const CORR_W = 7, MEDIAN_W = 1, ROAD_Y = MEDIAN_W / 2 + CORR_W;  // 7.5: the outer kerbs
+const STRIP_X0 = 1.5, STRIP_X1 = 2.5;
+const corrY0 = (c) => (c === 0 ? -ROAD_Y : MEDIAN_W / 2);        // 0 = entry (top), 1 = exit (bottom)
+const STRIP_NAME = ['ENTRY', 'EXIT'];
 const KIND_COLOR = ['#4589ff', '#33b1ff', '#ff7eb6', '#be95ff', '#42be65'];
 const VEH_COLOR = { car: '#e0e0e0', suv: '#a8a8a8', auto: '#f1c21b', moto: '#ff832b', bicycle: '#08bdba', bus: '#d12771', truck: '#8a3ffc' };
 const SPEEDS = [0.25, 0.5, 1, 2, 4, 8, 16, 30];
-const PRESETS = { // mirrors presetRates() in world.cpp: people/min, group, vehicles/min, stop, wait
-  idle: [0, 0, 0, 0, 0], sparse: [4, 0, 0, 0, 0], normal: [14, .25, 4, .1, 0], rush: [36, .35, 3, .1, 0],
-  dense: [75, .4, 0, 0, 0], festival: [140, .5, 0, 0, 0], signal: [0, 0, 6, 0, 0], traffic: [0, 0, 24, .08, 0],
-  mixed: [18, .3, 10, .2, 0], waiting: [12, .2, 2, 0, .3],
-};
-const QUICK = { v2: ['r', 't', 's', 'c', 'd', 'h'], cal: ['t', 'k20', 'n', 'p', 'a', 'h'] };
+// starting rates: people/min, group, vehicles/min, stop, wait, non-linear, heading into the ghat
+// (everyone wanders a little anyway; a quarter weave, cut across, jostle or turn back)
+const DEFAULT_RATES = [14, .25, 4, .1, 0, .25, .5];
+const QUICK = { v2: ['r', 't', 's', 'c', 'o0', 'o390', 'd', 'h'], cal: ['t', 'k20', 'n', 'p', 'a', 'h'] };
 
 let frame = null;
 let fw = 'v2';
@@ -36,10 +41,11 @@ function markFirmware(name) {
   $('calCard').hidden = name !== 'cal';
   renderQuick();
 }
-function setFirmware(name, scenario) {
+// (Re)start the simulator, then give it the rates set on this page.
+function setFirmware(name) {
   markFirmware(name);
   history = []; lastHistT = -1; serialLines = []; serialPartial = ''; $('serial').textContent = '';
-  return fetch('/api/firmware', { method: 'POST', body: JSON.stringify({ fw: name, scenario: scenario || $('scenario').value }) });
+  return fetch('/api/firmware', { method: 'POST', body: JSON.stringify({ fw: name, scenario: 'idle' }) });
 }
 
 function connect() {
@@ -53,7 +59,11 @@ function connect() {
     frame = f;
     if (f.fw !== fw) markFirmware(f.fw);
     if (f.serial) appendSerial(f.serial);
-    if (f.t - lastHistT >= 0.25) { history.push({ t: f.t, truth: f.truth, count: Math.max(0, f.count) }); lastHistT = f.t; if (history.length > 2000) history.shift(); }
+    if (f.t - lastHistT >= 0.25) {
+      history.push({ t: f.t, truth: f.truthInside, count: f.inside });
+      lastHistT = f.t;
+      if (history.length > 2000) history.shift();
+    }
     updateStats(f);
   };
 }
@@ -62,21 +72,84 @@ function connect() {
 function updateStats(f) {
   const cal = fw === 'cal';
   const c = f.count < 0 ? 0 : f.count;
+  $('sInside').textContent = cal ? '–' : f.inside;
+  $('sIn').textContent = cal ? '–' : f.in;
+  $('sOut').textContent = cal ? '–' : f.out;
   $('sCount').textContent = cal ? '–' : c;
-  $('sLaneA').textContent = cal ? '–' : f.laneA;
-  $('sLaneB').textContent = cal ? '–' : f.laneB;
-  $('sLive').textContent = cal ? 'calibration sketch running: no counting' : (f.live >= 0 ? `live ≈ ${f.live.toFixed(1)} including people on the strip now` : '');
+  $('sLive').textContent = cal ? 'calibration sketch running: no counting' : (f.live >= 0 ? `live ≈ ${f.live.toFixed(1)} incl. people on the strip now` : '\u00a0');
+  $('sTruthInside').textContent = f.truthInside;
+  $('sTruthInsideNote').textContent = `went in ${f.truthIn} · came out ${f.truthOut}`;
+  if (!cal && f.truthInside > 0) {
+    const acc = Math.max(0, 1 - Math.abs(f.inside - f.truthInside) / f.truthInside);
+    $('sInsideAcc').textContent = (acc * 100).toFixed(1) + '%';
+    $('sInsideAcc').className = acc >= 0.95 ? 'acc-good' : acc >= 0.85 ? 'acc-mid' : 'acc-bad';
+    $('sInsideAccNote').textContent = `board shows ${f.inside}, really ${f.truthInside} inside`;
+  } else {
+    $('sInsideAcc').textContent = '–'; $('sInsideAcc').className = '';
+    $('sInsideAccNote').textContent = cal ? '' : 'nobody inside yet';
+  }
+  updateAlert(f, cal);
   $('sTruth').textContent = f.truth;
-  $('sTruthNote').textContent = `→ ${f.truthA}   ← ${f.truthB}`;
+  $('sTruthNote').textContent = f.turnedBack ? `${f.turnedBack} stepped on & turned back (not crossings)` : '';
   if (f.truth > 0 && !cal) {
     const acc = 1 - Math.abs(c - f.truth) / f.truth;
     $('sAcc').textContent = (acc * 100).toFixed(1) + '%';
     $('sAcc').className = acc >= 0.9 ? 'acc-good' : acc >= 0.7 ? 'acc-mid' : 'acc-bad';
-    $('sAccNote').textContent = 'firmware reports ~0.6 s after a person steps off';
+    $('sAccNote').textContent = `firmware counted ${c} crossings`;
   } else { $('sAcc').textContent = '–'; $('sAcc').className = ''; $('sAccNote').textContent = ''; }
   $('sVeh').textContent = f.vehOver;
-  $('sVehNote').textContent = f.veh ? 'vehicle mask ACTIVE on the red pads' : `${f.vehTotal} vehicles spawned; tyres are masked, never counted`;
+  $('sVehNote').textContent = f.vehActive ? 'vehicle mask ACTIVE on the red plates' : `${f.vehTotal} vehicles spawned; tyres are masked, never counted`;
   $('pauseBtn').textContent = f.paused ? 'Resume' : 'Pause';
+  updatePedHint(f);
+}
+
+// Nobody waits at the gates: everyone pushes on and the crowd slows down. Show
+// how packed each corridor is at its gate (crowd-safety bands, people / m2).
+function updatePedHint(f) {
+  const el = $('pedHint');
+  const dens = f && Array.isArray(f.density) ? f.density : [0, 0];
+  const back = f && Array.isArray(f.backlog) ? f.backlog : [0, 0];
+  const d = Math.max(dens[0], dens[1]);
+  const both = `entry ${dens[0].toFixed(1)} · exit ${dens[1].toFixed(1)} people/m² at the gates`;
+  const backed = [0, 1].filter((c) => back[c] > 0).map((c) => `${back[c].toLocaleString('en-IN')} more backed up along the ${STRIP_NAME[c].toLowerCase()} corridor beyond the screen`).join(' · ');
+  el.classList.remove('warn', 'danger');
+  if (d >= 6) { el.textContent = `${both}: CRUSH DANGER` + (backed ? ' · ' + backed : ''); el.classList.add('danger'); }
+  else if (d >= 4) { el.textContent = `${both}: packed, everyone shuffling` + (backed ? ' · ' + backed : ''); el.classList.add('warn'); }
+  else el.textContent = 'exact people / min (0 – 10,000)' + (d >= 1 ? ` · ${both}` : '') + (backed ? ' · ' + backed : '');
+}
+
+// The overcrowding alert is raised by the FIRMWARE (it drives the siren pin
+// and prints @A lines); the page only shows it.
+let alertWas = false;
+function updateAlert(f, cal) {
+  const limit = f.limit > 0 ? f.limit : +$('crowdLimit').value || 3000;
+  const on = !cal && !!f.alert;
+  const frac = cal ? 0 : Math.max(0, Math.min(1, f.inside / limit));
+  $('limitFill').style.width = (frac * 100).toFixed(1) + '%';
+  $('limitFill').className = on ? 'over' : frac >= 0.8 ? 'near' : '';
+  $('limitState').textContent = cal ? '–' : on ? 'ALERT' : frac >= 0.8 ? `${Math.round(frac * 100)}% full` : 'ok';
+  $('limitState').className = 'limit-state' + (on ? ' over' : frac >= 0.8 ? ' near' : '');
+  $('counterCard').classList.toggle('alarm', on);
+  $('crowdAlert').hidden = !on;
+  if (on) $('crowdAlertText').textContent =
+    `${f.inside.toLocaleString('en-IN')} people inside Ram Ghat, limit ${limit.toLocaleString('en-IN')}. Hold the entry gate on Ramghat Marg; keep the exit gate open.`;
+  if (document.activeElement !== $('crowdLimit') && f.limit > 0 && +$('crowdLimit').value !== f.limit) $('crowdLimit').value = f.limit;
+  if (on && !alertWas) beep();
+  alertWas = on;
+}
+let audio = null;
+function beep() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') return;  // browsers allow sound only after a click on the page
+    for (let i = 0; i < 3; i++) {
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(audio.destination);
+      const t = audio.currentTime + i * 0.35;
+      g.gain.setValueAtTime(0.15, t); g.gain.setValueAtTime(0, t + 0.2);
+      o.start(t); o.stop(t + 0.22);
+    }
+  } catch { /* no audio: the banner is enough */ }
 }
 
 // ------------------------------------------------------------------ serial --
@@ -85,7 +158,8 @@ function appendSerial(text) {
   serialPartial = parts.pop();
   const show = $('showTelemetry').checked;
   for (const l of parts) {
-    if (!show && l.startsWith('@T,')) continue;
+    const body = l.replace(/^\[\w+\] /, '');  // "[ENTRY] " / "[EXIT] ": which board printed it
+    if (!show && (body.startsWith('@T,') || body.startsWith('@E,') || body.startsWith('@X,'))) continue;
     serialLines.push(l);
   }
   if (serialLines.length > 1500) serialLines.splice(0, serialLines.length - 1500);
@@ -133,54 +207,148 @@ function drawScene() {
   const g = cv.getContext('2d');
   const css = getComputedStyle(document.documentElement);
   const C = (n) => css.getPropertyValue(n).trim();
-  const s = h / 12.6;                     // px per metre
+  const s = h / 16.5;                     // px per metre: the two 7 m corridors and the barricade fill the height
   const cx = w / 2 - 2 * s, cy = h / 2;   // world (2, 0) in the centre
   const X = (x) => cx + x * s, Y = (y) => cy + y * s;
-  g.clearRect(0, 0, w, h);
-  // pavements and road
-  g.fillStyle = C('--walk'); g.fillRect(0, 0, w, h);
-  g.fillStyle = C('--road'); g.fillRect(0, Y(-3.5), w, 7 * s);
-  g.fillStyle = C('--road-edge'); g.fillRect(0, Y(-3.5) - 3 * dpr, w, 3 * dpr); g.fillRect(0, Y(3.5), w, 3 * dpr);
-  // lane divider
-  g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 2 * dpr; g.setLineDash([3 * s, 3 * s]);
-  g.beginPath(); g.moveTo(0, Y(0)); g.lineTo(w, Y(0)); g.stroke(); g.setLineDash([]);
-  // zebra crossing: white bars across both lanes
-  g.fillStyle = C('--stripe');
-  for (let y = -3.3; y < 3.3; y += 0.9) g.fillRect(X(0), Y(y), 4 * s, 0.45 * s);
-  // lane direction labels
-  g.fillStyle = 'rgba(255,255,255,.4)'; g.font = `${0.55 * s}px system-ui`; g.textAlign = 'left';
-  g.fillText('Lane A  →', X(-10.5), Y(2.0)); g.fillText('←  Lane B', X(10), Y(-1.5));
-
-  // sensor strip: 14 pads stacked across the road
+  const xL = -cx / s, xR = (w - cx) / s;  // visible world x range
   const f = frame;
+  g.clearRect(0, 0, w, h);
+
+  // ---- RIGHT: Ramghat Marg, kerb to kerb, split into two one-way corridors --
+  g.fillStyle = C('--walk'); g.fillRect(X(STRIP_X1), 0, w - X(STRIP_X1), h);
+  for (let c = 0; c < NUM_STRIPS; c++) {
+    g.fillStyle = C('--road'); g.fillRect(X(STRIP_X1), Y(corrY0(c)), w - X(STRIP_X1), CORR_W * s);
+  }
+  g.fillStyle = C('--road-edge');
+  g.fillRect(X(STRIP_X1), Y(-ROAD_Y) - 3 * dpr, w, 3 * dpr); g.fillRect(X(STRIP_X1), Y(ROAD_Y), w, 3 * dpr);
+  // painted arrows: one way in each corridor
+  g.save();
+  g.fillStyle = 'rgba(255,255,255,.28)';
+  for (let c = 0; c < NUM_STRIPS; c++) {
+    const d = c === 0 ? -1 : 1, yc = corrY0(c) + CORR_W / 2;
+    for (let x = Math.ceil(xR) - 1; x > STRIP_X1 + 2; x -= 6) {
+      for (const yy of [yc - 2.2, yc + 2.2]) {
+        g.beginPath();
+        g.moveTo(X(x + d * 0.9), Y(yy)); g.lineTo(X(x - d * 0.5), Y(yy - 0.5)); g.lineTo(X(x - d * 0.2), Y(yy));
+        g.lineTo(X(x - d * 0.5), Y(yy + 0.5)); g.closePath(); g.fill();
+      }
+    }
+  }
+  // corridor names, painted on the road
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const mx = (Math.max(5.5, xR - 6) + 4) / 2 + 2.5;
+  g.fillStyle = 'rgba(255,255,255,.6)'; g.font = `700 ${0.66 * s}px system-ui`;
+  g.fillText('◀   ENTRY  ·  प्रवेश', X(mx), Y(corrY0(0) + 3.0));
+  g.fillText('EXIT  ·  निकास   ▶', X(mx), Y(corrY0(1) + 3.0));
+  g.font = `${0.36 * s}px system-ui`; g.fillStyle = 'rgba(255,255,255,.45)';
+  g.fillText('one way · to Ram Ghat · रामघाट मार्ग', X(mx), Y(corrY0(0) + 3.8));
+  g.fillText('one way · to Dani Gate · रामघाट मार्ग', X(mx), Y(corrY0(1) + 3.8));
+  g.restore();
+  // road sign, pinned to the top-right corner
+  {
+    const sh = Math.max(34 * dpr, 0.62 * s), sw = sh * 3.8, sx = w - sw - 8 * dpr, sy = 8 * dpr;
+    g.fillStyle = '#0b6e3a'; roundRect(g, sx, sy, sw, sh, 0.12 * s); g.fill();
+    g.strokeStyle = '#fff'; g.lineWidth = 1.5 * dpr; roundRect(g, sx + 2 * dpr, sy + 2 * dpr, sw - 4 * dpr, sh - 4 * dpr, 0.1 * s); g.stroke();
+    g.fillStyle = '#fff'; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.font = `700 ${sh * 0.29}px system-ui`; g.fillText('← Ram Ghat  ·  Shipra', sx + sh * 0.17, sy + sh * 0.32);
+    g.font = `600 ${sh * 0.25}px system-ui`; g.fillText('Dani Gate · Mahakaleshwar →', sx + sh * 0.17, sy + sh * 0.7);
+    g.textBaseline = 'alphabetic';
+  }
+
+  // ---- LEFT: Ram Ghat premises (plaza, steps, Shipra river) ------------------
+  const riverX = -11.25, stepsX = -6.0;
+  const gl = g.createLinearGradient(0, 0, X(STRIP_X0), 0);
+  gl.addColorStop(0, '#d8b98b'); gl.addColorStop(1, '#e6cfa6');
+  g.fillStyle = gl; g.fillRect(0, 0, X(STRIP_X0), h);
+  // paving joints on the plaza
+  g.strokeStyle = 'rgba(120,90,50,.18)'; g.lineWidth = 1 * dpr;
+  for (let x = stepsX; x < STRIP_X0; x += 1) { g.beginPath(); g.moveTo(X(x), 0); g.lineTo(X(x), h); g.stroke(); }
+  for (let y = -9; y <= 9; y += 1) { g.beginPath(); g.moveTo(X(stepsX), Y(y)); g.lineTo(X(STRIP_X0), Y(y)); g.stroke(); }
+  // ghat steps going down to the river
+  for (let i = 0, x = stepsX; x > riverX; i++, x -= 0.55) {
+    g.fillStyle = i % 2 ? '#c9a473' : '#bb9461';
+    g.fillRect(X(x - 0.55), 0, 0.55 * s + 1, h);
+    g.fillStyle = 'rgba(90,60,30,.25)'; g.fillRect(X(x - 0.55), 0, 2 * dpr, h);
+  }
+  // the Shipra
+  const gr = g.createLinearGradient(0, 0, X(riverX), 0);
+  gr.addColorStop(0, '#1f5f8b'); gr.addColorStop(1, '#3a86b4');
+  g.fillStyle = gr; g.fillRect(0, 0, X(riverX), h);
+  g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 1.2 * dpr;
+  const tt = f ? f.t : 0;
+  for (let y = -9; y < 9; y += 0.9) {
+    g.beginPath();
+    for (let x = xL; x <= riverX; x += 0.1) {
+      const yy = y + 0.12 * Math.sin(x * 3 + tt * 1.2 + y);
+      if (x === xL) g.moveTo(X(x), Y(yy)); else g.lineTo(X(x), Y(yy));
+    }
+    g.stroke();
+  }
+  g.save(); g.translate(X((xL + riverX) / 2), Y(0)); g.rotate(-Math.PI / 2);
+  g.fillStyle = 'rgba(255,255,255,.85)'; g.font = `600 ${0.36 * s}px system-ui`; g.textAlign = 'center';
+  g.fillText('SHIPRA · क्षिप्रा', 0, 0.12 * s); g.restore();
+  // the premises' name, painted on the plaza
+  g.fillStyle = 'rgba(80,45,10,.38)'; g.textAlign = 'center';
+  const nx = Math.max(xL + 3.2, -3.0);
+  g.font = `800 ${0.62 * s}px system-ui`; g.fillText('RAM GHAT', X(nx), Y(5.6));
+  g.font = `600 ${0.32 * s}px system-ui`; g.fillText('राम घाट · Simhastha Kumbh, Ujjain', X(nx), Y(6.15));
+  // premises boundary along the kerb lines, with the gates at the strips
+  g.strokeStyle = '#7a4b1c'; g.lineWidth = 3 * dpr; g.setLineDash([6 * dpr, 4 * dpr]);
+  g.beginPath(); g.moveTo(X(stepsX), Y(-ROAD_Y)); g.lineTo(X(STRIP_X0), Y(-ROAD_Y)); g.moveTo(X(stepsX), Y(ROAD_Y)); g.lineTo(X(STRIP_X0), Y(ROAD_Y)); g.stroke();
+  g.setLineDash([]);
+
+  // ---- the barricade between the corridors, from the plaza to the far end --
+  {
+    const bx0 = X(-3.0), bw = w - bx0;
+    g.fillStyle = C('--walk'); g.fillRect(bx0, Y(-MEDIAN_W / 2), bw, MEDIAN_W * s);
+    g.strokeStyle = '#8a9099'; g.lineWidth = Math.max(2 * dpr, 0.08 * s);
+    g.beginPath(); g.moveTo(bx0, Y(0)); g.lineTo(w, Y(0)); g.stroke();
+    g.fillStyle = '#5c636d';
+    for (let x = -3.0; x < xR; x += 1.5) { g.beginPath(); g.arc(X(x), Y(0), Math.max(2.5 * dpr, 0.11 * s), 0, 7); g.fill(); }
+    g.save(); g.fillStyle = 'rgba(40,45,52,.75)'; g.font = `600 ${0.3 * s}px system-ui`; g.textAlign = 'left'; g.textBaseline = 'middle';
+    g.fillText('BARRICADE · entry and exit kept apart', X(4.2), Y(0) - 0.34 * s); g.restore();
+  }
+  // gate pillars at the kerbs and at the barricade ends
+  for (const py of [-ROAD_Y, -MEDIAN_W / 2, MEDIAN_W / 2, ROAD_Y]) {
+    g.fillStyle = '#a0522d'; g.fillRect(X(STRIP_X0) - 0.15 * s, Y(py) - 0.3 * s, 1.3 * s, 0.6 * s);
+    g.fillStyle = '#f5b700'; g.beginPath(); g.arc(X(2), Y(py), 0.16 * s, 0, 7); g.fill();
+  }
+  g.fillStyle = 'rgba(80,45,10,.8)'; g.font = `700 ${0.3 * s}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('ENTRY GATE', X(0.2), Y(-ROAD_Y - 0.4));
+  g.fillText('EXIT GATE', X(0.2), Y(ROAD_Y + 0.4));
+  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+
+  // ---- sensor strips: 14 plates across each corridor, in its gate -----------
   const mask = f && f.fw === 'v2' ? f.mask : 0;
   const fs = Math.max(9 * dpr, 0.2 * s);
-  for (let i = 0; i < NUM_PADS; i++) {
-    const kg = f ? f.pads[i] : 0;
-    const y0 = STRIP_Y0 + i * PAD_W;
-    g.globalAlpha = 0.9;
-    g.fillStyle = heat(kg);
-    g.fillRect(X(STRIP_X0), Y(y0) + 1, (STRIP_X1 - STRIP_X0) * s, PAD_W * s - 2);
-    g.globalAlpha = 1;
-    if (mask & (1 << i)) {
-      g.save(); g.beginPath(); g.rect(X(STRIP_X0), Y(y0) + 1, s, PAD_W * s - 2); g.clip();
-      g.strokeStyle = '#fa4d56'; g.lineWidth = 2 * dpr;
-      for (let k = -s; k < 2 * s; k += 6 * dpr) { g.beginPath(); g.moveTo(X(STRIP_X0) + k, Y(y0)); g.lineTo(X(STRIP_X0) + k + PAD_W * s, Y(y0 + PAD_W)); g.stroke(); }
-      g.restore();
+  for (let c = 0; c < NUM_STRIPS; c++) {
+    for (let i = 0; i < NUM_PADS; i++) {
+      const k = c * NUM_PADS + i;
+      const kg = f ? f.pads[k] : 0;
+      const y0 = corrY0(c) + i * PAD_W;
+      g.globalAlpha = 0.92;
+      g.fillStyle = heat(kg);
+      g.fillRect(X(STRIP_X0), Y(y0) + 1, (STRIP_X1 - STRIP_X0) * s, PAD_W * s - 2);
+      g.globalAlpha = 1;
+      if (mask & (1 << k)) {
+        g.save(); g.beginPath(); g.rect(X(STRIP_X0), Y(y0) + 1, s, PAD_W * s - 2); g.clip();
+        g.strokeStyle = '#fa4d56'; g.lineWidth = 2 * dpr;
+        for (let q = -s; q < 2 * s; q += 6 * dpr) { g.beginPath(); g.moveTo(X(STRIP_X0) + q, Y(y0)); g.lineTo(X(STRIP_X0) + q + PAD_W * s, Y(y0 + PAD_W)); g.stroke(); }
+        g.restore();
+      }
+      g.fillStyle = kg > 90 ? '#111' : '#fff';
+      g.font = `${fs}px ui-monospace, Menlo, monospace`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(kg >= 1 ? Math.round(kg) : '·', X((STRIP_X0 + STRIP_X1) / 2), Y(y0 + PAD_W / 2));
     }
-    g.fillStyle = kg > 90 ? '#111' : '#fff';
-    g.font = `${fs}px ui-monospace, Menlo, monospace`;
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText(kg >= 1 ? Math.round(kg) : '·', X((STRIP_X0 + STRIP_X1) / 2), Y(y0 + PAD_W / 2));
-    g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'right';
-    g.fillText('P' + i, X(STRIP_X0) - 4 * dpr, Y(y0 + PAD_W / 2));
+    g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.strokeStyle = '#ffffff'; g.lineWidth = 1.5 * dpr; g.strokeRect(X(STRIP_X0), Y(corrY0(c)), s, CORR_W * s);
   }
-  g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-  g.strokeStyle = '#ffffff'; g.lineWidth = 1.5 * dpr; g.strokeRect(X(STRIP_X0), Y(-3.5), s, 7 * s);
+
   if (f) {
     // static calibration weights
     for (const [pad, kg] of f.weights) {
-      const y0 = STRIP_Y0 + pad * PAD_W;
+      const y0 = corrY0(Math.floor(pad / NUM_PADS)) + (pad % NUM_PADS) * PAD_W;
       g.fillStyle = '#6f6f6f'; g.fillRect(X(1.75), Y(y0 + 0.08), 0.5 * s, 0.34 * s);
       g.fillStyle = '#fff'; g.font = `${0.17 * s}px system-ui`; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(kg + 'kg', X(2), Y(y0 + 0.25)); g.textAlign = 'left'; g.textBaseline = 'alphabetic';
@@ -209,9 +377,9 @@ function drawScene() {
         g.fillRect(bx, Y(y - bw / 2 + 0.1), 3 * dpr, 0.3 * s); g.fillRect(bx, Y(y + bw / 2 - 0.4), 3 * dpr, 0.3 * s);
       }
     }
-    // pedestrians (walking along the lanes)
+    // pilgrims
     for (const p of f.peds) {
-      const [, kind, x, y, mass, standing, feet] = p;
+      const [, kind, x, y, mass, standing, feet, path, dir] = p;
       for (let k = 0; k + 1 < feet.length; k += 2) {
         g.fillStyle = 'rgba(255,255,255,.9)';
         g.beginPath(); g.ellipse(X(feet[k]), Y(feet[k + 1]), 0.11 * s, 0.05 * s, 0, 0, 7); g.fill();
@@ -220,32 +388,55 @@ function drawScene() {
       g.fillStyle = KIND_COLOR[kind] || '#888';
       g.beginPath(); g.arc(X(x), Y(y), r, 0, 7); g.fill();
       g.lineWidth = 1.5 * dpr; g.strokeStyle = standing ? '#f1c21b' : 'rgba(0,0,0,.35)'; g.stroke();
+      // walking direction: a small chevron on the leading side
+      // (orange = heading into the ghat, white = coming out)
+      const d = dir < 0 ? -1 : 1;
+      g.fillStyle = d < 0 ? '#ff9f1a' : '#ffffff';
+      g.beginPath();
+      g.moveTo(X(x) + d * (r + 5 * dpr), Y(y));
+      g.lineTo(X(x) + d * (r + 1 * dpr), Y(y) - 3.5 * dpr);
+      g.lineTo(X(x) + d * (r + 1 * dpr), Y(y) + 3.5 * dpr);
+      g.closePath(); g.fill();
+      if (path > 0) { // non-linear walker: dashed ring
+        g.beginPath(); g.arc(X(x), Y(y), r + 3 * dpr, 0, 7);
+        g.setLineDash([3 * dpr, 2.5 * dpr]); g.strokeStyle = '#f1c21b'; g.lineWidth = 1.5 * dpr; g.stroke(); g.setLineDash([]);
+      }
     }
   }
-  // the counter sign next to the crossing
-  drawSign(g, X(2), Y(-3.5) - 6 * dpr, dpr, s);
+  // the gates' counter board, hanging over the plaza by the entry gate
+  drawSign(g, X(STRIP_X0) - 0.6 * s - Math.max(95 * dpr, 1.8 * s), Y(-ROAD_Y) + Math.max(60 * dpr, 1.2 * s) + 0.5 * s, dpr, s);
   // HUD
   if (f) {
     g.fillStyle = 'rgba(0,0,0,.55)'; roundRect(g, 8 * dpr, 8 * dpr, 230 * dpr, 24 * dpr, 6 * dpr); g.fill();
     g.fillStyle = '#fff'; g.font = `${12 * dpr}px system-ui`;
     g.fillText(`t = ${f.t.toFixed(1)} s   ${f.speed}×${f.paused ? '  (paused)' : ''}`, 16 * dpr, 24 * dpr);
+    const hidden = (f.pedsTotal || 0) - f.peds.length;
+    if (hidden > 0) {  // only a sample of the people is drawn
+      const txt = `${f.pedsTotal.toLocaleString('en-IN')} people on this stretch · drawing every ${Math.round(f.pedsTotal / f.peds.length)}th`;
+      g.font = `600 ${12 * dpr}px system-ui`;
+      const tw = g.measureText(txt).width + 20 * dpr, qy = h - 32 * dpr;
+      g.fillStyle = 'rgba(0,0,0,.6)'; roundRect(g, w - tw - 8 * dpr, qy, tw, 24 * dpr, 6 * dpr); g.fill();
+      g.fillStyle = '#fff'; g.fillText(txt, w - tw + 2 * dpr, qy + 16 * dpr);
+    }
   }
 }
 
 function drawSign(g, cx, bottom, dpr, s) {
   const f = frame;
   const cal = !f || f.fw === 'cal';
-  const total = cal ? '----' : String(Math.max(0, f.count));
-  const wSign = Math.max(170 * dpr, 4.6 * s), hSign = Math.max(54 * dpr, 1.45 * s);
+  const inside = cal ? '----' : String(f.inside);
+  const alarm = !cal && f.alert;
+  const blink = alarm && Math.floor(performance.now() / 450) % 2 === 0;
+  const wSign = Math.max(190 * dpr, 3.6 * s), hSign = Math.max(60 * dpr, 1.2 * s);
   const x = cx - wSign / 2, y = bottom - hSign;
-  g.fillStyle = '#0d1117'; roundRect(g, x, y, wSign, hSign, 8 * dpr); g.fill();
-  g.strokeStyle = '#30363d'; g.lineWidth = 2 * dpr; g.stroke();
-  g.fillStyle = '#8b949e'; g.font = `600 ${Math.max(9 * dpr, hSign * 0.17)}px system-ui`; g.textAlign = 'center';
-  g.fillText('PEOPLE CROSSED', cx, y + hSign * 0.25);
-  g.fillStyle = '#3fb950'; g.font = `700 ${hSign * 0.42}px ui-monospace, Menlo, monospace`;
-  g.fillText(total, cx, y + hSign * 0.66);
-  g.fillStyle = '#58a6ff'; g.font = `600 ${Math.max(9 * dpr, hSign * 0.17)}px ui-monospace, Menlo, monospace`;
-  g.fillText(cal ? '' : `→ ${f.laneA}    ← ${f.laneB}`, cx, y + hSign * 0.9);
+  g.fillStyle = blink ? '#5c0b0b' : '#0d1117'; roundRect(g, x, y, wSign, hSign, 8 * dpr); g.fill();
+  g.strokeStyle = alarm ? '#ff4d4f' : '#f0a020'; g.lineWidth = (alarm ? 3 : 2) * dpr; g.stroke();
+  g.fillStyle = alarm ? '#ffb3b3' : '#c9d1d9'; g.font = `600 ${Math.max(9 * dpr, hSign * 0.15)}px system-ui`; g.textAlign = 'center';
+  g.fillText(alarm ? 'OVERCROWDED · HOLD ENTRY' : 'INSIDE RAM GHAT', cx, y + hSign * 0.23);
+  g.fillStyle = alarm ? '#ff4d4f' : '#f0a020'; g.font = `700 ${hSign * 0.4}px ui-monospace, Menlo, monospace`;
+  g.fillText(inside, cx, y + hSign * 0.62);
+  g.fillStyle = '#58a6ff'; g.font = `600 ${Math.max(9 * dpr, hSign * 0.15)}px ui-monospace, Menlo, monospace`;
+  g.fillText(cal ? '' : `← in ${f.in}   out ${f.out} →`, cx, y + hSign * 0.88);
   g.textAlign = 'left';
 }
 
@@ -256,28 +447,32 @@ function drawPads() {
   const css = getComputedStyle(document.documentElement);
   g.clearRect(0, 0, w, h);
   if (!frame) return;
+  const n = NUM_STRIPS * NUM_PADS;
   const max = Math.max(160, ...frame.pads, ...(frame.u || [0]));
-  const pad = 22 * dpr, bw = (w - pad) / NUM_PADS;
+  const pad = 22 * dpr, gap = 16 * dpr, bw = (w - pad - gap) / n;
+  const barX = (i) => pad + i * bw + (i >= NUM_PADS ? gap : 0);
   g.strokeStyle = css.getPropertyValue('--line'); g.fillStyle = css.getPropertyValue('--muted'); g.font = `${10 * dpr}px system-ui`;
   for (const v of [0, 100, 200, 300].filter((v) => v <= max)) {
-    const y = h - 16 * dpr - (v / max) * (h - 26 * dpr);
+    const y = h - 16 * dpr - (v / max) * (h - 36 * dpr);
     g.beginPath(); g.moveTo(pad, y); g.lineTo(w, y); g.stroke(); g.fillText(v, 0, y + 3 * dpr);
   }
-  // lane separator
-  g.strokeStyle = css.getPropertyValue('--muted'); g.setLineDash([4 * dpr, 3 * dpr]);
-  g.beginPath(); g.moveTo(pad + PER_LANE * bw, 4 * dpr); g.lineTo(pad + PER_LANE * bw, h - 14 * dpr); g.stroke(); g.setLineDash([]);
-  for (let i = 0; i < NUM_PADS; i++) {
-    const kg = frame.pads[i], bh = (Math.min(kg, max) / max) * (h - 26 * dpr);
-    const x = pad + i * bw + bw * 0.18;
+  for (let i = 0; i < n; i++) {
+    const kg = frame.pads[i], bh = (Math.min(kg, max) / max) * (h - 36 * dpr);
+    const x = barX(i) + bw * 0.18;
     g.fillStyle = (frame.mask & (1 << i)) && frame.fw === 'v2' ? '#fa4d56' : heat(kg);
     g.fillRect(x, h - 16 * dpr - bh, bw * 0.64, bh);
     if (frame.u) {
-      const u = Math.max(0, frame.u[i]), uy = h - 16 * dpr - (Math.min(u, max) / max) * (h - 26 * dpr);
+      const u = Math.max(0, frame.u[i]), uy = h - 16 * dpr - (Math.min(u, max) / max) * (h - 36 * dpr);
       g.fillStyle = css.getPropertyValue('--accent'); g.fillRect(x - 2 * dpr, uy - 1.5 * dpr, bw * 0.64 + 4 * dpr, 3 * dpr);
     }
     g.fillStyle = css.getPropertyValue('--muted'); g.textAlign = 'center';
-    g.fillText(i, x + bw * 0.32, h - 3 * dpr); g.textAlign = 'left';
+    g.fillText(i % NUM_PADS, x + bw * 0.32, h - 3 * dpr); g.textAlign = 'left';
   }
+  // which strip is which
+  g.font = `600 ${10 * dpr}px system-ui`; g.fillStyle = css.getPropertyValue('--muted');
+  for (let c = 0; c < NUM_STRIPS; c++) g.fillText(`${STRIP_NAME[c]} GATE`, barX(c * NUM_PADS) + bw * 0.18, 10 * dpr);
+  // the gap between the strips
+  g.fillStyle = css.getPropertyValue('--line'); g.fillRect(barX(NUM_PADS) - gap / 2 - dpr, 14 * dpr, 2 * dpr, h - 30 * dpr);
 }
 
 function drawChart() {
@@ -304,52 +499,97 @@ function drawChart() {
     g.beginPath(); pts.forEach((p, i) => (i ? g.lineTo(X(p.t), Y(p[key])) : g.moveTo(X(p.t), Y(p[key])))); g.stroke(); g.setLineDash([]);
   };
   line('truth', css.getPropertyValue('--muted'), 2, [5, 4]);
-  if (fw !== 'cal') line('count', css.getPropertyValue('--accent'), 2.5, []);
+  if (fw !== 'cal') line('count', '#f0a020', 2.5, []);
   g.fillStyle = css.getPropertyValue('--muted'); g.textAlign = 'right';
   g.fillText('- - truth   ', w - 70 * dpr, h - 4 * dpr);
-  g.fillStyle = css.getPropertyValue('--accent'); g.fillText('— firmware', w - 6 * dpr, h - 4 * dpr); g.textAlign = 'left';
+  g.fillStyle = '#f0a020'; g.fillText('— firmware', w - 6 * dpr, h - 4 * dpr); g.textAlign = 'left';
 }
 
 function render() { drawScene(); drawPads(); drawChart(); requestAnimationFrame(render); }
 
 // --------------------------------------------------------------- controls --
+// People/min runs 0..10,000 on a cubic scale so the low end stays usable:
+// slider 100 -> 10/min, 240 -> ~140, 360 -> ~470, 500 -> 1,250, 1000 -> 10,000
+const PED_MAX = 10000;
+const pedFromSlider = (p) => Math.round(PED_MAX * Math.pow(p / 1000, 3));
+const sliderFromPed = (v) => Math.round(1000 * Math.cbrt(Math.max(0, v) / PED_MAX));
+const pedRate = () => Math.max(0, Math.min(PED_MAX, Math.round(+$('nPed').value || 0)));
+const vehRate = () => ($('vehOn').checked ? +$('rVeh').value : 0);
 function rateUI(vals) {
-  const [ped, grp, veh, stop, wait] = vals;
-  $('rPed').value = ped; $('rGrp').value = Math.round(grp * 100); $('rVeh').value = veh;
+  const [ped, grp, veh, stop, wait, nonlin = 0, inbound = 0.5] = vals;
+  $('nPed').value = ped; $('rPed').value = sliderFromPed(ped);
+  $('rGrp').value = Math.round(grp * 100); if (veh > 0) $('rVeh').value = veh;
   $('rStop').value = Math.round(stop * 100); $('rWait').value = Math.round(wait * 100);
+  $('rNonlin').value = Math.round(nonlin * 100); $('rInb').value = Math.round(inbound * 100);
   rateLabels();
 }
 function rateLabels() {
-  $('oPed').textContent = $('rPed').value; $('oGrp').textContent = $('rGrp').value + '%';
-  $('oVeh').textContent = $('rVeh').value; $('oStop').textContent = $('rStop').value + '%'; $('oWait').textContent = $('rWait').value + '%';
+  const ped = pedRate();
+  $('oPed').textContent = ped.toLocaleString('en-IN');
+  $('oGrp').textContent = $('rGrp').value + '%';
+  $('oVeh').textContent = $('vehOn').checked ? $('rVeh').value : 'off';
+  $('rVeh').disabled = !$('vehOn').checked;
+  $('vehOnNote').textContent = $('vehOn').checked ? `on: ${$('rVeh').value} vehicles/min` : 'off: no vehicles arrive unless you spawn one';
+  $('oStop').textContent = $('rStop').value + '%'; $('oWait').textContent = $('rWait').value + '%';
+  $('oNonlin').textContent = $('rNonlin').value + '%';
+  $('oInb').textContent = `${$('rInb').value}% in · ${100 - $('rInb').value}% out`;
+  updatePedHint(frame);
 }
 function sendRates() {
   rateLabels();
-  cmd(`rates ${$('rPed').value} ${$('rGrp').value / 100} ${$('rVeh').value} ${$('rStop').value / 100} ${$('rWait').value / 100}`);
+  return cmd(`rates ${pedRate()} ${$('rGrp').value / 100} ${vehRate()} ${$('rStop').value / 100} ${$('rWait').value / 100}`);
+}
+// Send every rate on this page to the simulator (after loading the page or
+// restarting the simulator), and the alert limit to the board.
+function applyLocal(withLimit = true) {
+  const p = sendRates()
+    .then(() => cmd(`nonlin ${$('rNonlin').value / 100}`))
+    .then(() => cmd(`inbound ${$('rInb').value / 100}`));
+  return withLimit && fw === 'v2' ? p.then(() => cmd(`serial l${+$('crowdLimit').value || 3000}`)) : p;
 }
 
 function wire() {
-  document.querySelectorAll('.fw-switch button').forEach((b) => (b.onclick = () => setFirmware(b.dataset.fw)));
-  $('scenario').onchange = () => { cmd('scenario ' + $('scenario').value); rateUI(PRESETS[$('scenario').value] || PRESETS.idle); };
+  document.querySelectorAll('.fw-switch button').forEach((b) => (b.onclick = () => setFirmware(b.dataset.fw).then(() => applyLocal())));
+  $('vehOn').onchange = () => { rateLabels(); cmd(`vehicles ${vehRate()}`); };
+  $('rVeh').onchange = () => { rateLabels(); cmd(`vehicles ${vehRate()}`); };
+  $('rPed').oninput = () => { $('nPed').value = pedFromSlider(+$('rPed').value); rateLabels(); };
+  $('rPed').onchange = () => { $('nPed').value = pedFromSlider(+$('rPed').value); sendRates(); };
+  $('nPed').onchange = () => { $('nPed').value = pedRate(); $('rPed').value = sliderFromPed(pedRate()); sendRates(); };
+  $('crowdForm').onsubmit = (e) => {
+    e.preventDefault();
+    const n = Math.max(1, Math.min(100000, Math.round(+$('crowdN').value || 0)));
+    $('crowdN').value = n;
+    cmd(`spawn crowd ${n} ${$('spawnLane').value}`.trim());
+  };
+  $('crowdLimit').onchange = () => {
+    const v = Math.max(1, Math.round(+$('crowdLimit').value || 3000));
+    $('crowdLimit').value = v; cmd(`serial l${v}`);
+  };
+  // the browser only allows the alarm sound after a click on the page
+  document.addEventListener('pointerdown', () => { try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch { /* ignore */ } }, { once: true });
   $('speed').oninput = () => { const v = SPEEDS[+$('speed').value]; $('speedOut').textContent = v + '×'; cmd('speed ' + v); };
   $('pauseBtn').onclick = () => cmd(frame && frame.paused ? 'resume' : 'pause');
-  $('resetBtn').onclick = () => { cmd('serial r'); cmd('resettruth'); history = []; lastHistT = -1; };
-  $('restartBtn').onclick = () => setFirmware(fw).then(() => cmd('speed ' + SPEEDS[+$('speed').value]));
+  // fresh start: counts to zero and an empty ghat (o0 = headcount of 0)
+  $('resetBtn').onclick = () => { cmd('serial r').then(() => cmd('resettruth')).then(() => cmd('serial o0')); history = []; lastHistT = -1; };
+  $('restartBtn').onclick = () => setFirmware(fw).then(() => cmd('speed ' + SPEEDS[+$('speed').value])).then(applyLocal);
   document.querySelectorAll('[data-spawn]').forEach((b) => (b.onclick = () => cmd(`spawn ${b.dataset.spawn} ${$('spawnLane').value}`.trim())));
-  ['rPed', 'rGrp', 'rVeh', 'rStop', 'rWait'].forEach((id) => ($(id).onchange = sendRates));
-  ['rPed', 'rGrp', 'rVeh', 'rStop', 'rWait'].forEach((id) => ($(id).oninput = rateLabels));
+  ['rGrp', 'rStop', 'rWait'].forEach((id) => ($(id).onchange = sendRates));
+  ['rGrp', 'rVeh', 'rStop', 'rWait', 'rNonlin', 'rInb'].forEach((id) => ($(id).oninput = rateLabels));
+  $('rNonlin').onchange = () => { rateLabels(); cmd(`nonlin ${$('rNonlin').value / 100}`); };
+  $('rInb').onchange = () => { rateLabels(); cmd(`inbound ${$('rInb').value / 100}`); };
   $('serialForm').onsubmit = (e) => { e.preventDefault(); const v = $('serialInput').value; if (v) { cmd('serial ' + v); $('serialInput').value = ''; } };
   $('showTelemetry').onchange = () => { serialLines = []; };
   for (let i = 0; i < NUM_PADS; i++) {
     const o = document.createElement('option');
-    o.value = i; o.textContent = `Pad ${i} (lane ${i < PER_LANE ? 'B' : 'A'})`;
+    o.value = i; o.textContent = `Entry plate ${i}`;
     $('calPad').appendChild(o);
   }
   $('calPut').onclick = () => cmd(`weight ${$('calPad').value} ${+$('calKg').value || 0}`);
   $('calClear').onclick = () => cmd('weight clear');
   $('benchBtn').onclick = runBench;
-  rateUI(PRESETS.normal);
+  rateUI(DEFAULT_RATES);
   renderQuick();
+  applyLocal(false);  // the page's rates go to the simulator; vehicles stay off until switched on (the limit is read from the board)
 }
 
 // -------------------------------------------------------------- benchmark --
@@ -374,31 +614,38 @@ async function pollBench() {
 function accClass(a) { return a >= 0.9 ? 'acc-good' : a >= 0.7 ? 'acc-mid' : 'acc-bad'; }
 function pct(a) { return a === null || a === undefined ? '–' : `<span class="${accClass(a)}">${(a * 100).toFixed(1)}%</span>`; }
 function renderBench(res) {
-  let html = '<div class="table-wrap"><table><thead><tr><th>Scenario</th><th>Accuracy</th><th></th><th>→ Lane A</th><th>← Lane B</th></tr></thead><tbody>';
+  let html = '<div class="table-wrap"><table><thead><tr><th>Scenario</th><th>Crossings</th><th></th><th>← Entry gate</th><th>→ Exit gate</th><th>Inside at end: true / counted</th></tr></thead><tbody>';
   let tT = 0, tE = 0;
   for (const row of res.table) {
     const c = row.v2;
     if (!c) continue;
-    html += `<tr><td><b>${row.scenario}</b><div class="scen-desc">${row.description}</div></td>`;
-    if (c.accuracy === null) {
+    const extra = c.turnedBack ? `${c.turnedBack} stepped on & turned back` : '';
+    html += `<tr><td><b>${row.scenario}</b><div class="scen-desc">${row.description}${extra ? '<br>' + extra : ''}</div></td>`;
+    const ins = c.inside;
+    const insideCell = ins ? `<td class="num">${ins.truthEnd.map((t, i) => `${t} / ${ins.countedEnd[i]}`).join(' · ')}<div class="scen-desc">mean error ${ins.errEndMean.toFixed(1)} people</div></td>` : '<td></td>';
+    if (c.turnedBack > c.truth) { // mostly people who did NOT cross
+      const per = c.counted / Math.max(1, c.turnedBack + c.truth);
+      html += `<td class="num acc-bad" colspan="2">counted ${c.counted} for ${c.turnedBack + c.truth} people on the strip</td><td class="num scen-desc" colspan="2">${per.toFixed(2)} counts per person · only ${c.truth} crossed · in/out cancel</td>${insideCell}`;
+    } else if (c.accuracy === null) {
       const per = c.vehiclesOverStrip ? (c.counted / c.vehiclesOverStrip) : 0;
-      html += `<td class="num ${per < 0.1 ? 'acc-good' : 'acc-bad'}">${c.counted} false counts</td><td class="num scen-desc">from ${c.vehiclesOverStrip} vehicles (${(per * 100).toFixed(1)}%)</td><td></td><td></td>`;
+      html += `<td class="num ${per < 0.1 ? 'acc-good' : 'acc-bad'}">${c.counted} false counts</td><td class="num scen-desc">from ${c.vehiclesOverStrip} vehicles (${(per * 100).toFixed(1)}%)</td><td></td><td></td><td></td>`;
     } else {
       tT += c.truth; tE += Math.abs(c.counted - c.truth);
       const a = Math.max(0, c.accuracy);
-      html += `<td style="min-width:140px"><div class="bar v2"><span style="width:${(a * 100).toFixed(1)}%"></span><em></em></div></td>`;
-      html += `<td class="num">${pct(c.accuracy)} <span class="scen-desc">${c.counted}/${c.truth} · worst run ${(c.worstRun * 100).toFixed(0)}%</span></td>`;
-      const la = c.lanes ? c.lanes.A : null, lb = c.lanes ? c.lanes.B : null;
-      html += `<td class="num">${la ? pct(la.accuracy) + ` <span class="scen-desc">${la.counted}/${la.truth}</span>` : '–'}</td>`;
-      html += `<td class="num">${lb ? pct(lb.accuracy) + ` <span class="scen-desc">${lb.counted}/${lb.truth}</span>` : '–'}</td>`;
+      html += `<td style="min-width:130px"><div class="bar v2"><span style="width:${(a * 100).toFixed(1)}%"></span><em></em></div></td>`;
+      html += `<td class="num">${pct(c.accuracy)} <span class="scen-desc">${c.counted}/${c.truth}</span></td>`;
+      const di = c.dirs ? c.dirs.in : null, dout = c.dirs ? c.dirs.out : null;
+      html += `<td class="num">${di ? pct(di.accuracy) + ` <span class="scen-desc">${di.counted}/${di.truth}</span>` : '–'}</td>`;
+      html += `<td class="num">${dout ? pct(dout.accuracy) + ` <span class="scen-desc">${dout.counted}/${dout.truth}</span>` : '–'}</td>`;
+      html += insideCell;
     }
     html += '</tr>';
   }
   if (tT) {
     const a = 1 - tE / tT;
-    html += `<tr><td><b>All pedestrian scenarios</b><div class="scen-desc">sum of |error| / people</div></td><td><div class="bar v2"><span style="width:${(a * 100).toFixed(1)}%"></span><em></em></div></td><td class="num">${pct(a)} <span class="scen-desc">${tT} people</span></td><td></td><td></td></tr>`;
+    html += `<tr><td><b>All pedestrian scenarios</b><div class="scen-desc">sum of |error| / people</div></td><td><div class="bar v2"><span style="width:${(a * 100).toFixed(1)}%"></span><em></em></div></td><td class="num">${pct(a)} <span class="scen-desc">${tT} people</span></td><td></td><td></td><td></td></tr>`;
   }
-  html += '</tbody></table></div><p class="hint" style="margin-top:8px">Dashed line = 90 % target. Accuracy = 1 − |counted − true| / true per scenario, summed over seeds.</p>';
+  html += '</tbody></table></div><p class="hint" style="margin-top:8px">Dashed line = 90 % target. Accuracy = 1 − |counted − true| / true per scenario, summed over seeds. "Inside at end" = net people who went into the premises during each 10-minute run (one pair per seed).</p>';
   $('benchTable').innerHTML = html;
 }
 

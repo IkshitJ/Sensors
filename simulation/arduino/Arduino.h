@@ -35,6 +35,10 @@ typedef bool boolean;
 #define PI 3.14159265358979323846
 #endif
 
+// Arduino Mega 2560 analog pins, usable as digital I/O (same numbers as the real core)
+static const uint8_t A0 = 54, A1 = 55, A2 = 56, A3 = 57, A4 = 58, A5 = 59, A6 = 60, A7 = 61;
+static const uint8_t A8 = 62, A9 = 63, A10 = 64, A11 = 65, A12 = 66, A13 = 67, A14 = 68, A15 = 69;
+
 unsigned long millis();
 unsigned long micros();
 void delay(unsigned long ms);
@@ -52,6 +56,7 @@ inline T constrain(T x, L lo, H hi) { return x < (T)lo ? (T)lo : (x > (T)hi ? (T
 
 class HardwareSerial {
  public:
+  explicit HardwareSerial(int port = 0) : port_(port) {}
   void begin(unsigned long, int = 0) {}
   void end() {}
   int available();
@@ -81,9 +86,10 @@ class HardwareSerial {
  private:
   size_t printSigned(long n, int base);
   size_t printNumber(unsigned long n, int base);
+  int port_;  // 0 = USB serial, 1 = Serial1 (pins 18/19 on a Mega)
 };
 
-extern HardwareSerial Serial;
+extern HardwareSerial Serial, Serial1;
 
 // Weak default; a sketch's own serialEvent() overrides it (as on a real Mega).
 void serialEvent();
