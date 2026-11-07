@@ -122,7 +122,7 @@ function updatePedHint(f) {
 // and prints @A lines); the page only shows it.
 let alertWas = false;
 function updateAlert(f, cal) {
-  const limit = f.limit > 0 ? f.limit : +$('crowdLimit').value || 3000;
+  const limit = f.limit > 0 ? f.limit : +$('crowdLimit').value || 300;
   const on = !cal && !!f.alert;
   const frac = cal ? 0 : Math.max(0, Math.min(1, f.inside / limit));
   $('limitFill').style.width = (frac * 100).toFixed(1) + '%';
@@ -545,7 +545,7 @@ function applyLocal(withLimit = true) {
   const p = sendRates()
     .then(() => cmd(`nonlin ${$('rNonlin').value / 100}`))
     .then(() => cmd(`inbound ${$('rInb').value / 100}`));
-  return withLimit && fw === 'v2' ? p.then(() => cmd(`serial l${+$('crowdLimit').value || 3000}`)) : p;
+  return withLimit && fw === 'v2' ? p.then(() => cmd(`serial l${+$('crowdLimit').value || 300}`)) : p;
 }
 
 function wire() {
@@ -562,7 +562,7 @@ function wire() {
     cmd(`spawn crowd ${n} ${$('spawnLane').value}`.trim());
   };
   $('crowdLimit').onchange = () => {
-    const v = Math.max(1, Math.round(+$('crowdLimit').value || 3000));
+    const v = Math.max(1, Math.round(+$('crowdLimit').value || 300));
     $('crowdLimit').value = v; cmd(`serial l${v}`);
   };
   // the browser only allows the alarm sound after a click on the page
