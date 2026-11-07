@@ -11,13 +11,15 @@
  *  ────────────────────
  *   1. Median-of-3 per pad ......... removes single-sample ADC glitches.
  *   2. Vehicle detector ............ a tyre = a pad (or pad pair) gaining
- *                                    >250 kg within 0.3 s; crowds can't load a
- *                                    pad that fast. Runs on the NEWEST raw
- *                                    samples and masks only the pads under the
- *                                    tyre, RETROACTIVELY inside a 0.8 s delay
- *                                    line, so a tyre's ramp-up never reaches
- *                                    the counter. Parked tyres are absorbed
- *                                    into the pad's zero after 3 s.
+ *                                    >250 kg within 0.1 s whose load then stays
+ *                                    FLAT for 0.2 s (a packed crowd can land
+ *                                    three feet at once, but they ripple).
+ *                                    Runs on the NEWEST raw samples and masks
+ *                                    only the pads under the tyre,
+ *                                    RETROACTIVELY inside a 0.8 s delay line,
+ *                                    so a tyre's ramp-up never reaches the
+ *                                    counter. Parked tyres are absorbed into
+ *                                    the pad's zero after 3 s.
  *   3. Auto-zero ................... drift tracking, re-zero after negative
  *                                    steps, absorbs static loads (parked tyre,
  *                                    debris, someone standing still > 15 s).
@@ -41,11 +43,16 @@
  *                                    Exact for isolated people and small groups,
  *                                    but arrivals and departures overlapping on
  *                                    the same pads partly cancel in a crowd.
- *   7. Moving impulse .............. load x time, counted only on pads that saw
- *                                    a new footstep within 1 s and minus any
- *                                    load that was standing still (waiting
- *                                    people, a stopped wheel). Can't cancel, so
- *                                    it holds up in crowds.
+ *   7. Moving impulse .............. load x time x walking speed, counted only
+ *                                    on pads that saw a new footstep within 1 s
+ *                                    and minus any load that was standing still
+ *                                    (waiting people, a stopped wheel). Can't
+ *                                    cancel, so it holds up in crowds. The
+ *                                    speed comes from the crowd density on the
+ *                                    strip (load / kg per person / area) via
+ *                                    the Weidmann speed-density relation, so a
+ *                                    slow, packed crowd is not counted several
+ *                                    times over.
  *   8. Sessions .................... activity separated by >250 ms of silence.
  *                                    people = arrivals/V1 for small sessions,
  *                                    impulse/I1 for big ones, blended between
@@ -107,19 +114,32 @@ static const float ROUND_LIMIT = 3.5f;             // sessions above this keep f
 static const float ROUND_BIAS = 0.5f;
 static const float MIN_PERSON = 0.2f;              // below this a session is noise
 static const float LARGE_COMMIT = 20.0f;           // commit long crowd sessions in chunks
+// ---- crowd speed ----------------------------------------------------------------------
+static const float PAD_AREA_M2 = 0.5f;             // 0.5 m x 1.0 m plate
+static const float JAM_DENSITY = 8.0f;             // people / m2: a crush, bodies cannot pack closer
+static const float WEIDMANN_GAMMA = 1.913f;        // Weidmann (1993) speed-density relation
+static const float CRAWL = 0.10f;                  // a packed crowd still shuffles at ~10 % of walking speed
+static const float DENSITY_ALPHA = 0.0125f;        // density smoothing, tau ~1 s
 // ---- vehicles ------------------------------------------------------------------------------
 static const float VEH_TRIGGER_KG = 250.0f;        // one pad gaining this much...
-static const uint8_t VEH_RISE_FRAMES = 24;         // ...within 0.3 s => tyre
+static const uint8_t VEH_RISE_FRAMES = 8;          // ...within 0.1 s => tyre (a crowd front needs seconds)
 static const float VEH_PAIR_TRIGGER_KG = 260.0f;   // tyre on a pad border: pair sum...
 static const float VEH_PAIR_RISE_KG = 200.0f;      // ...rising this much...
 static const uint8_t VEH_PAIR_RISE_FRAMES = 8;     // ...within 0.1 s
 static const float VEH_CONFIRM_KG = 40.0f;         // previous sample agrees (no glitch)
+static const float VEH_CROWD_KG = 150.0f;          // a pad already carrying this much is a crowd: no tyre lands there
 static const float VEH_TRACK_KG = 180.0f;          // keep tracking the tyre...
 static const float VEH_TRACK_PAIR_KG = 230.0f;     // ...also on a pad boundary
 static const int8_t VEH_LATCH_SPAN = 0;             // neighbour pads masked around a tyre
 static const uint8_t VEH_POST_FRAMES = 6;         // 150 ms tail after the last tyre
 static const uint16_t PARK_FRAMES = 240;           // 3 s stationary => parked: absorb
-static const uint8_t VEH_RETRO_FRAMES = 32;        // mask the last 0.4 s (tyre ramp-up)
+static const uint8_t VEH_CONFIRM_FRAMES = 16;      // a tyre candidate must stay flat for 0.2 s...
+static const uint8_t VEH_CAND_FRAMES = 56;         // ...within 0.7 s of the jump, else it is a crowd
+static const float VEH_FLAT_FRAC = 0.15f;          // ...within 15 % of its level (suspension bounce 10 % peak-to-peak, footsteps 20-30 %)
+static const float VEH_CROWD_DENSITY = 3.0f;       // people / m2 on the strip above which no vehicle can be driving onto it...
+static const uint16_t VEH_CROWD_FRAMES = 320;      // ...once it has lasted 4 s (a passing vehicle's load is gone sooner)
+static const float VEH_HEAVY_KG = 1200.0f;         // a pad carrying this much is a tyre at once (bus, truck): a crush is 5 people = 400 kg
+static const uint8_t VEH_RETRO_FRAMES = 48;        // mask the last 0.6 s (tyre ramp-up + confirmation)
 static const float PARK_BAND_KG = 15.0f;
 // ---- auto-zero ----------------------------------------------------------------------------
 static const uint16_t IDLE_FRAMES = 160;           // 2 s idle before drift tracking
@@ -231,13 +251,14 @@ class PedestrianCounter {
 
     // 5-6. smoothing and arrival measure on the delayed, cleaned signal
     bool anyActive = false;
-    float sum = 0;
+    float sum = 0, loadOn = 0;
     uint8_t activePads = 0;
     for (uint8_t i = 0; i < n_; i++) {
       bool masked = mask & (1 << i);
       float u = masked ? hold_[i] : out[i];
       if (!masked) hold_[i] = u;
       u_[i] = u;
+      if (!masked && u > 0) loadOn += u;
       s1_[i] += pc::SMOOTH_ALPHA * (u - s1_[i]);
       s2_[i] += pc::SMOOTH_ALPHA * (s1_[i] - s2_[i]);
       if (u > pc::ON_KG || s2_[i] > pc::ACTIVE_KG) {
@@ -269,6 +290,10 @@ class PedestrianCounter {
         if (fresh && moving > pc::ACTIVE_KG) sum += moving;
       }
     }
+    // crowd density on the strip (people / m2, smoothed over ~1 s) and the
+    // walking speed it allows, relative to free walking (see crowdSpeed())
+    density_ += pc::DENSITY_ALPHA * (loadOn / v1_ / (n_ * pc::PAD_AREA_M2) - density_);
+    float speed = crowdSpeed(density_);
     float arrivals = 0;
     for (uint8_t i = 0; i + 1 < n_; i++) arrivals += rise(qWin_[i], s2_[i] + s2_[i + 1]);
     for (uint8_t i = 1; i + 1 < n_; i++) arrivals -= rise(qPad_[i], s2_[i]);
@@ -293,7 +318,7 @@ class PedestrianCounter {
     }
     if (sess_.open) {
       sess_.v += arrivals;
-      sess_.imp += sum * 0.0125f;
+      sess_.imp += sum * 0.0125f * speed;  // load x time x speed: ~I1 per person at any density
       float est = sessionEstimate();
       if (est > pc::LARGE_COMMIT) {  // long crowd session: commit in chunks of 10
         float keep = (est - 10.0f) / est;
@@ -328,6 +353,8 @@ class PedestrianCounter {
   float personVariation() const { return v1_; }
   float personImpulse() const { return i1_; }
   float padLoad(uint8_t i) const { return u_[i]; }
+  float crowdDensity() const { return density_; }                  // people / m2 on the strip now
+  float speedFactor() const { return crowdSpeed(density_); }      // their walking speed, relative to free walking
   float padBaseline(uint8_t i) const { return base_[i]; }
 
  public:
@@ -369,6 +396,19 @@ class PedestrianCounter {
     if (b > c) { float t = b; b = c; c = t; }
     if (a > b) { float t = a; a = b; b = t; }
     return b;
+  }
+
+  // Walking speed relative to free walking at a crowd density rho (people /
+  // m2): Weidmann's (1993) speed-density relation, with the jam density of a
+  // festival crowd (bodies cannot pack closer than ~8 / m2) and a floor for
+  // the shuffle a packed crowd keeps up. The impulse a person leaves on the
+  // strip is their weight x the time they spend on it, which grows as the
+  // crowd slows; weighting the impulse by this speed keeps it at ~I1 per
+  // person whether they walk freely or shuffle.
+  static float crowdSpeed(float rho) {
+    if (rho < 0.05f) return 1.0f;
+    float v = 1.0f - expf(-pc::WEIDMANN_GAMMA * (1.0f / rho - 1.0f / pc::JAM_DENSITY));
+    return v < pc::CRAWL ? pc::CRAWL : v;
   }
 
   // positive variation of x with a dead-band (backlash operator)
@@ -551,27 +591,83 @@ class PedestrianCounter {
   }
 
   void detectVehicle(const bool* overload, float* m) {
-    // A tyre adds >250 kg to a pad within a few tenths of a second. People can
-    // only load a 0.5 m pad that much by accumulating over seconds, so the
+    // A tyre adds >250 kg to a pad within a tenth of a second. A crowd can do
+    // that too, but only with three feet landing at once, and those feet then
+    // roll through their stance: the load dips 20-30 % within the next 0.3 s.
+    // A tyre's load is FLAT (suspension bounce ~5 %). So a pad whose load
+    // jumped is a tyre CANDIDATE, latched only once its load has stayed flat
+    // for 0.2 s; a candidate that ripples is a crowd and is dropped. The
     // trigger is the RISE, not the level (works even on a pad that reads
-    // negative right after a parked car drove off).
+    // negative right after a parked car drove off). The 0.8 s delay line
+    // leaves time for the confirmation, and the latch masks the ramp-up
+    // retroactively.
     uint8_t past = (uint8_t)((ringPos_ + pc::DELAY_FRAMES - pc::VEH_RISE_FRAMES) % pc::DELAY_FRAMES);
     uint8_t pastPair = (uint8_t)((ringPos_ + pc::DELAY_FRAMES - pc::VEH_PAIR_RISE_FRAMES) % pc::DELAY_FRAMES);
-    uint8_t trigPads = 0;
+    // A tyre lands on a pad that is not already carrying a crowd: in a packed
+    // crowd (4-5 people on a pad) feet landing together can add 250 kg within
+    // 0.1 s and the summed load is nearly flat, but the pad was carrying
+    // 200-300 kg before. Vehicles do not drive through a crush.
+    // ...and no vehicle drives into a crowd: once the strip has carried more
+    // than ~3 people / m2 (walking at a third of the free speed) for a few
+    // seconds, only a heavy or saturated plate can be a tyre. (A crowd builds
+    // up over many seconds; a passing vehicle's load is gone within ~3 s.)
+    if (density_ > pc::VEH_CROWD_DENSITY) { if (crowdFrames_ < 60000) crowdFrames_++; }
+    else crowdFrames_ = 0;
+    bool crowded = crowdFrames_ > pc::VEH_CROWD_FRAMES;
+    uint8_t trigPads = 0, sure = 0;
     for (uint8_t i = 0; i < n_; i++) {
-      float r0 = rh_[i][0];
+      float r0 = rh_[i][0], before = fromQ(ring_[past][i]);
       bool confirm = rh_[i][1] > pc::VEH_CONFIRM_KG;  // not a lone ADC glitch
-      if (overload[i] || (confirm && r0 - fromQ(ring_[past][i]) > pc::VEH_TRIGGER_KG)) {
-        trigPads |= (1 << i);
-      }
+      if (overload[i] || r0 > pc::VEH_HEAVY_KG) sure |= (1 << i);  // tonnes on a 0.5 m2 plate: never people
+      if (overload[i] || r0 > pc::VEH_HEAVY_KG) trigPads |= (1 << i);
+      if (crowded) continue;
+      if (confirm && before < pc::VEH_CROWD_KG && r0 - before > pc::VEH_TRIGGER_KG) trigPads |= (1 << i);
       // a tyre straddling two pads splits its load: check adjacent pairs too
       if (i + 1 < n_ && (confirm || rh_[i + 1][1] > pc::VEH_CONFIRM_KG)) {
         float pair = r0 + rh_[i + 1][0];
         float pairPast = fromQ(ring_[pastPair][i]) + fromQ(ring_[pastPair][i + 1]);
-        if (pair > pc::VEH_PAIR_TRIGGER_KG && pair - pairPast > pc::VEH_PAIR_RISE_KG) trigPads |= (3 << i);
+        if (pair > pc::VEH_PAIR_TRIGGER_KG && pairPast < 2 * pc::VEH_CROWD_KG && pair - pairPast > pc::VEH_PAIR_RISE_KG) trigPads |= (3 << i);
       }
     }
-    if (trigPads && !vehActive_) {
+    // while a vehicle is on the strip, any pad well above its level before
+    // the vehicle (the other wheels, a tyre rolling onto the next pad) is a
+    // candidate too
+    if (vehActive_ && !crowded) {
+      for (uint8_t i = 0; i < n_; i++) {
+        float d = rh_[i][0] - ref_[i];
+        if (ref_[i] >= pc::VEH_CROWD_KG) continue;
+        if (d > pc::VEH_TRACK_KG) trigPads |= (1 << i);
+        if (i + 1 < n_ && ref_[i + 1] < pc::VEH_CROWD_KG && d + (rh_[i + 1][0] - ref_[i + 1]) > pc::VEH_TRACK_PAIR_KG) trigPads |= (3 << i);
+      }
+    }
+    // candidates: watch the load for flatness. The window slides: a tyre's
+    // ramp-up restarts it, and the pad is confirmed once the load has stayed
+    // flat for 0.2 s. A candidate that keeps rippling (footsteps) is dropped.
+    uint8_t confirmed = sure;
+    for (uint8_t i = 0; i < n_; i++) {
+      uint8_t bit = 1 << i;
+      if (latched_ & bit) { cand_ &= (uint8_t)~bit; continue; }
+      float r = rh_[i][0];
+      if (!(cand_ & bit)) {
+        if (!(trigPads & bit)) continue;
+        cand_ |= bit;
+        candSince_[i] = candStart_[i] = frame_;
+        candMin_[i] = candMax_[i] = r;
+        continue;
+      }
+      if (r < candMin_[i]) candMin_[i] = r;
+      if (r > candMax_[i]) candMax_[i] = r;
+      float level = candMax_[i] > 0 ? candMax_[i] : 1;
+      if (r < pc::VEH_CONFIRM_KG || frame_ - candSince_[i] > pc::VEH_CAND_FRAMES) {
+        cand_ &= (uint8_t)~bit;  // gone, or never settled: not a tyre
+      } else if (candMax_[i] - candMin_[i] > pc::VEH_FLAT_FRAC * level) {
+        candStart_[i] = frame_;  // still ramping (or rippling): restart the window
+        candMin_[i] = candMax_[i] = r;
+      } else if (frame_ - candStart_[i] >= pc::VEH_CONFIRM_FRAMES) {
+        confirmed |= bit;
+      }
+    }
+    if (confirmed && !vehActive_) {
       vehActive_ = true;
       vehEvents_++;
       latched_ = 0;
@@ -580,18 +676,11 @@ class PedestrianCounter {
       for (uint8_t i = 0; i < n_; i++) ref_[i] = ringMin(i);
     }
     if (!vehActive_) return;
-
-    // follow the tyre(s): only pads under or next to a tyre are masked, so
-    // pedestrians elsewhere on the strip keep being counted
-    for (uint8_t i = 0; i < n_; i++) {
-      float d = rh_[i][0] - ref_[i];
-      bool tyre = (trigPads & (1 << i)) || d > pc::VEH_TRACK_KG;
-      if (i + 1 < n_ && d + (rh_[i + 1][0] - ref_[i + 1]) > pc::VEH_TRACK_PAIR_KG) {
-        tyre = true;
-        latchAround(i + 1);
-      }
-      if (tyre) latchAround(i);
-    }
+    for (uint8_t i = 0; i < n_; i++)
+      if (confirmed & (1 << i)) { latchAround(i); cand_ &= (uint8_t)~(1 << i); }
+    // keep following a latched tyre while it stays on the pad
+    for (uint8_t i = 0; i < n_; i++)
+      if ((latched_ & (1 << i)) && rh_[i][0] - ref_[i] > pc::VEH_TRACK_KG) latchUntil_[i] = frame_ + pc::VEH_POST_FRAMES;
 
     // parked vehicle: a tyre standing still on a pad is absorbed into that
     // pad's zero, so people stepping next to it are counted again
@@ -619,9 +708,19 @@ class PedestrianCounter {
   void autoZero(uint8_t i, float* m) {
     if (vehActive_ && (latched_ & (1 << i))) return;
     float v = m[i];
-    // load removed that had been absorbed (or drift below zero): re-zero
+    // load removed that had been absorbed (or drift below zero): re-zero. The
+    // re-zero shifts the delay line too, so the absorbed load reappears in
+    // the delayed samples of the last 0.8 s. It was absorbed as a parked
+    // tyre or a standing load, not traffic: mask those samples.
     if (v < pc::NEG_KG) {
-      if (++negCnt_[i] >= pc::NEG_FRAMES) shiftPad(i, v, false, m);
+      if (++negCnt_[i] >= pc::NEG_FRAMES) {
+        bool absorbed = v < -pc::STATIC_MIN_KG;
+        shiftPad(i, v, false, m);
+        if (absorbed) {
+          for (uint8_t k = 0; k < pc::DELAY_FRAMES; k++) ringMask_[k] |= (1 << i);
+          hold_[i] = 0;
+        }
+      }
     } else {
       negCnt_[i] = 0;
     }
@@ -649,6 +748,7 @@ class PedestrianCounter {
   uint32_t frame_ = 0;
   uint32_t total_ = 0;
   float frac_ = 0;
+  float density_ = 0;
   float v1_ = pc::DEFAULT_V1, i1_ = pc::DEFAULT_I1;
   uint16_t vehEvents_ = 0, transients_ = 0, learned_ = 0;
   Event event_ = {0, 0, false};
@@ -669,7 +769,10 @@ class PedestrianCounter {
   Session sess_;
 
   bool vehActive_ = false;
-  uint8_t latched_ = 0;
+  uint16_t crowdFrames_ = 0;
+  uint8_t latched_ = 0, cand_ = 0;
+  uint32_t candStart_[PC_MAX_PADS], candSince_[PC_MAX_PADS];
+  float candMin_[PC_MAX_PADS], candMax_[PC_MAX_PADS];
   uint32_t parkStart_[PC_MAX_PADS];
   float ref_[PC_MAX_PADS], parkMin_[PC_MAX_PADS], parkMax_[PC_MAX_PADS];
   uint32_t latchUntil_[PC_MAX_PADS];

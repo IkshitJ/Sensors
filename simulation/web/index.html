@@ -12,7 +12,7 @@
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 4v16M10 4v16M14 4v16M18 4v16" stroke="currentColor" stroke-width="1.6"/></svg>
     <div>
       <h1>Prototype : Counting people in Kumbh</h1>
-      <p class="sub">Live simulation running the real Arduino sketch, compiled natively</p>
+      <p class="sub">Ram Ghat gates on Ramghat Marg, Ujjain (Simhastha Kumbh): a 7 m entry and a 7 m exit corridor, kept apart by a barricade · live simulation running the real Arduino sketch on both gate boards</p>
     </div>
   </div>
   <div class="fw-switch" role="tablist" aria-label="Firmware">
@@ -25,35 +25,40 @@
 <main>
   <section class="scene-col">
     <div class="card scene-card">
-      <canvas id="scene" aria-label="Top-down view of the crossing"></canvas>
+      <div id="crowdAlert" class="crowd-alert" role="alert" hidden>
+        <span class="siren" aria-hidden="true">⚠</span>
+        <div><b>OVERCROWDING ALERT</b><span id="crowdAlertText"></span></div>
+      </div>
+      <canvas id="scene" aria-label="Top-down view of Ramghat Marg at the entry and exit gates of the Ram Ghat premises"></canvas>
       <div class="legend">
         <span><i class="dot adult"></i>adult</span><span><i class="dot teen"></i>teen</span>
         <span><i class="dot child"></i>child</span><span><i class="dot elder"></i>elder</span>
-        <span><i class="dot runner"></i>runner</span>
-        <span><i class="sq heat"></i>sensor pad load</span><span><i class="sq mask"></i>masked as vehicle</span>
-        <span>14 pads × 0.5 m span both lanes on the zebra crossing</span>
+        <span><i class="dot runner"></i>runner</span><span><i class="dot nonlin"></i>non-linear walker</span>
+        <span><i class="sq heat"></i>sensor plate load</span><span><i class="sq mask"></i>masked as vehicle</span>
+        <span><b style="color:#ff9f1a">◀</b> entry corridor, into the ghat</span><span><b>▶</b> exit corridor, coming out</span>
+        <span>one strip of 14 plates × 0.5 m spans each 7 m corridor at its gate · one Arduino per gate, joined by a cable</span>
       </div>
     </div>
 
     <div class="grid2">
       <div class="card">
-        <h2>Pad loads <small>lane B ← pads 0–6 | lane A → pads 7–13 · bar = physical, tick = firmware</small></h2>
+        <h2>Plate loads <small>entry gate plates 0–13, exit gate plates 0–13 · bar = physical, tick = firmware</small></h2>
         <canvas id="pads" height="150"></canvas>
       </div>
       <div class="card">
-        <h2>People crossed over time <small>ground truth vs firmware</small></h2>
+        <h2>People inside the ghat premises <small>ground truth vs firmware</small></h2>
         <canvas id="chart" height="150"></canvas>
       </div>
     </div>
 
     <div class="card">
       <div class="serial-head">
-        <h2>Serial monitor <small>115200 baud, exactly what the sketch prints</small></h2>
+        <h2>Serial monitor <small>115200 baud, exactly what each board prints ([ENTRY] / [EXIT])</small></h2>
         <label class="chk"><input type="checkbox" id="showTelemetry"> show @T telemetry</label>
       </div>
       <pre id="serial" aria-live="off"></pre>
       <form id="serialForm" class="serial-in">
-        <input id="serialInput" placeholder="Send to the Arduino, e.g. s or k20" autocomplete="off">
+        <input id="serialInput" placeholder="Send to the Arduino, e.g. s, o2500 or k20" autocomplete="off">
         <button type="submit">Send</button>
         <span class="quick" id="quickCmds"></span>
       </form>
@@ -61,54 +66,53 @@
   </section>
 
   <aside class="side-col">
-    <div class="counter-card" aria-live="polite">
-      <span class="lbl">People crossed the sensor strip</span>
-      <b id="sCount">0</b>
+    <div class="counter-card" id="counterCard" aria-live="polite">
+      <span class="lbl">Inside Ram Ghat premises now</span>
+      <b id="sInside">0</b>
+      <div class="limit-bar" title="People inside vs the overcrowding limit"><i id="limitFill"></i></div>
+      <label class="limit-row">Overcrowding alert at
+        <input type="number" id="crowdLimit" min="1" max="1000000" step="50" value="3000"> people
+        <span id="limitState" class="limit-state">ok</span>
+      </label>
       <div class="dirs">
-        <div><span class="arrow">→</span><span class="dl">Lane A</span><b id="sLaneA">0</b></div>
-        <div><span class="arrow">←</span><span class="dl">Lane B</span><b id="sLaneB">0</b></div>
+        <div><span class="arrow">←</span><span class="dl">Entry gate</span><b id="sIn">0</b></div>
+        <div><span class="arrow">→</span><span class="dl">Exit gate</span><b id="sOut">0</b></div>
       </div>
+      <span class="crossed">People crossed the strips: <b id="sCount">0</b></span>
       <span id="sLive" class="note"></span>
     </div>
     <div class="stats">
-      <div class="stat"><span class="lbl">Ground truth</span><b id="sTruth">0</b><span id="sTruthNote" class="note"></span></div>
-      <div class="stat"><span class="lbl">Accuracy</span><b id="sAcc">–</b><span id="sAccNote" class="note"></span></div>
+      <div class="stat"><span class="lbl">True inside</span><b id="sTruthInside">0</b><span id="sTruthInsideNote" class="note"></span></div>
+      <div class="stat"><span class="lbl">Inside accuracy</span><b id="sInsideAcc">–</b><span id="sInsideAccNote" class="note"></span></div>
+      <div class="stat"><span class="lbl">True crossings</span><b id="sTruth">0</b><span id="sTruthNote" class="note"></span></div>
+      <div class="stat"><span class="lbl">Count accuracy</span><b id="sAcc">–</b><span id="sAccNote" class="note"></span></div>
       <div class="stat wide"><span class="lbl">Vehicles over the strip</span><b id="sVeh">0</b><span id="sVehNote" class="note"></span></div>
     </div>
 
     <div class="card">
       <h2>Simulation</h2>
-      <label class="row">Scenario
-        <select id="scenario">
-          <option value="idle">Idle (spawn manually)</option>
-          <option value="sparse">Sparse – 4 people/min</option>
-          <option value="normal" selected>Normal – 14/min, groups, cars</option>
-          <option value="rush">Rush hour – 36/min</option>
-          <option value="dense">Dense – 75/min continuous</option>
-          <option value="festival">Festival crowd – 140/min</option>
-          <option value="signal">Signal platoons every 60 s</option>
-          <option value="waiting">People waiting on the strip</option>
-          <option value="mixed">Mixed traffic, cars stopping</option>
-          <option value="traffic">Vehicles only</option>
-        </select>
-      </label>
+      <label class="row">People / min <output id="oPed"></output><input type="range" id="rPed" min="0" max="1000" value="100" title="0 to 10,000 people per minute (finer steps at the low end)"></label>
+      <div class="row ped-exact">
+        <input type="number" id="nPed" min="0" max="10000" step="1" value="14" aria-label="People per minute, exact">
+        <span class="hint" id="pedHint">exact people / min (0 – 10,000)</span>
+      </div>
       <label class="row">Speed <output id="speedOut">1×</output>
         <input type="range" id="speed" min="0" max="7" step="1" value="2">
       </label>
       <div class="btns">
         <button id="pauseBtn">Pause</button>
-        <button id="resetBtn" title="Reset firmware count (serial 'r') and ground truth">Reset counts</button>
+        <button id="resetBtn" title="Fresh start: zero the counts and empty the ghat">Reset counts</button>
         <button id="restartBtn" title="Reboot the Arduino with a fresh world">Reboot</button>
       </div>
     </div>
 
     <div class="card">
       <h2>Spawn</h2>
-      <label class="row">Lane
+      <label class="row">Direction
         <select id="spawnLane">
-          <option value="">Random lane</option>
-          <option value="A">Lane A (moving →)</option>
-          <option value="B">Lane B (moving ←)</option>
+          <option value="">Random</option>
+          <option value="in">← Entry corridor, into the ghat</option>
+          <option value="out">→ Exit corridor, out to Ramghat Marg</option>
         </select>
       </label>
       <div class="spawn">
@@ -117,6 +121,18 @@
         <button data-spawn="group 3">Group of 3</button><button data-spawn="group 5">Group of 5</button>
         <button data-spawn="waiter">Stops on strip</button>
       </div>
+      <div class="spawn">
+        <button data-spawn="weaver" title="Meanders: heading swings ±10–30°">Weaver</button>
+        <button data-spawn="drifter" title="Cuts diagonally across the strip, 1–4 m sideways">Diagonal</button>
+        <button data-spawn="jostler" title="Pushed around by the crowd: random heading, uneven steps, sidesteps">Jostler</button>
+        <button data-spawn="uturn" title="Steps onto the strip, turns round and walks back (does not cross)">U-turn</button>
+      </div>
+      <form class="row crowd-add" id="crowdForm">
+        <span>Add a crowd now</span>
+        <input type="number" id="crowdN" min="1" max="100000" step="1" value="500" aria-label="Number of people">
+        <button type="submit">Add people</button>
+      </form>
+      <p class="hint crowd-hint">They push into their corridor at once, in the direction chosen above; nobody queues at the gates. Bodies cannot overlap: when a corridor on screen is packed solid (8 people/m²) the rest back up along it beyond the screen and push on as room frees. Only people who are inside the ghat can walk out.</p>
       <div class="spawn veh">
         <button data-spawn="car">Car</button><button data-spawn="suv">SUV</button>
         <button data-spawn="moto">Motorbike</button><button data-spawn="bicycle">Bicycle</button>
@@ -127,17 +143,19 @@
 
     <div class="card">
       <h2>Traffic rates</h2>
-      <label class="row">People / min <output id="oPed"></output><input type="range" id="rPed" min="0" max="200" value="14"></label>
+      <label class="row" title="Share of pilgrims arriving at the entry corridor; the rest leave through the exit corridor">Heading into the ghat <output id="oInb"></output><input type="range" id="rInb" min="0" max="100" value="50"></label>
       <label class="row">Groups <output id="oGrp"></output><input type="range" id="rGrp" min="0" max="100" value="25"></label>
+      <label class="toggle"><input type="checkbox" id="vehOn"><span class="sw" aria-hidden="true"></span>Vehicles on the marg <small id="vehOnNote">off: no vehicles arrive unless you spawn one</small></label>
       <label class="row">Vehicles / min <output id="oVeh"></output><input type="range" id="rVeh" min="0" max="40" value="3"></label>
       <label class="row">Vehicles stopping <output id="oStop"></output><input type="range" id="rStop" min="0" max="100" value="10"></label>
       <label class="row">People waiting <output id="oWait"></output><input type="range" id="rWait" min="0" max="100" value="0"></label>
+      <label class="row" title="Everyone wanders a little; this share weave strongly, cut diagonally across the corridor, jostle or turn back">Non-linear walkers <output id="oNonlin"></output><input type="range" id="rNonlin" min="0" max="100" value="25"></label>
     </div>
 
     <div class="card" id="calCard" hidden>
       <h2>Calibration bench</h2>
-      <p class="hint">Calibration sketch is running. Put a test weight on a pad, then in the serial box: <code>t</code> to tare with the pad empty, <code>k20</code> with 20 kg on it, <code>n</code> for the next pad, <code>a</code> to print every factor.</p>
-      <label class="row">Pad <select id="calPad"></select></label>
+      <p class="hint">Calibration sketch is running on the entry gate's plates (move the board to the exit gate to do those). Each plate has two bridges (ghat-side and marg-side cell pairs). Put a test weight in the centre of a plate, then in the serial box: <code>t</code> to tare with the plate empty, <code>k20</code> with 20 kg on it, <code>n</code> for the next plate, <code>a</code> to print every factor.</p>
+      <label class="row">Plate <select id="calPad"></select></label>
       <label class="row">Weight (kg) <input type="number" id="calKg" value="20" min="0" step="0.5"></label>
       <div class="btns"><button id="calPut">Place weight</button><button id="calClear">Remove all</button></div>
     </div>
@@ -147,7 +165,7 @@
     <div class="bench-head">
       <div>
         <h2>Accuracy benchmark</h2>
-        <p class="hint">Runs the counter firmware headless with no hardware: 9 scenarios × <span id="bSeeds">3</span> random seeds × 10 simulated minutes, on all CPU cores. The firmware is a black box: its count comes only from what it prints on Serial. Accuracy is shown in total and per direction.</p>
+        <p class="hint">Runs both gate boards' firmware headless with no hardware: 17 scenarios (pilgrims arriving and leaving, straight and non-linear, tidal flows) × <span id="bSeeds">3</span> random seeds × 10 simulated minutes, on all CPU cores. The firmware is a black box: its counts come only from what it prints on Serial. Shown: crossings counted on both strips, the entry / exit gate counts, and the error of the "inside the premises" counter at the end of each run.</p>
       </div>
       <div class="bench-ctl">
         <button id="benchBtn">Run benchmark</button>

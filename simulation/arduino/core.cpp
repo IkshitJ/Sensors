@@ -9,16 +9,22 @@
 #include <random>
 
 SimHooks* g_sim = nullptr;
-HardwareSerial Serial;
+int g_board = 0;
+HardwareSerial Serial(0), Serial1(1);
 
-static std::deque<char> g_rx;
-static double g_txQueueEndUs = 0;            // when the UART finishes sending queued bytes
+// one receive buffer and one UART transmit queue per board and port
+static std::deque<char> g_rx[SIM_MAX_BOARDS][2];
+static double g_txQueueEndUs[SIM_MAX_BOARDS][2] = {{0, 0}, {0, 0}};  // when the UART finishes sending queued bytes
 static const double kUsPerByte = 1e6 * 10.0 / 115200.0;  // 8N1 at 115200 baud
 static const double kTxBufferBytes = 64;     // AVR HardwareSerial TX ring buffer
 static std::mt19937 g_arduinoRng(1);
 
-void sim_serial_push(const std::string& s) { for (char c : s) g_rx.push_back(c); }
-int sim_serial_rx_available() { return (int)g_rx.size(); }
+void sim_serial_push(const std::string& s) { sim_serial_push(0, 0, s); }
+void sim_serial_push(int board, int port, const std::string& s) {
+  if (board < 0 || board >= SIM_MAX_BOARDS || port < 0 || port > 1) return;
+  for (char c : s) g_rx[board][port].push_back(c);
+}
+int sim_serial_rx_available() { return (int)g_rx[g_board][0].size(); }
 
 __attribute__((weak)) void serialEvent() {}
 
@@ -35,25 +41,30 @@ long random(long lo, long hi) { return hi <= lo ? lo : lo + random(hi - lo); }
 void randomSeed(unsigned long s) { g_arduinoRng.seed((unsigned)s); }
 
 // ---------------------------------------------------------------- Serial ----
-int HardwareSerial::available() { return (int)g_rx.size(); }
+int HardwareSerial::available() { return (int)g_rx[g_board][port_].size(); }
 int HardwareSerial::read() {
-  if (g_rx.empty()) return -1;
-  char c = g_rx.front();
-  g_rx.pop_front();
+  std::deque<char>& q = g_rx[g_board][port_];
+  if (q.empty()) return -1;
+  char c = q.front();
+  q.pop_front();
   return (unsigned char)c;
 }
-int HardwareSerial::peek() { return g_rx.empty() ? -1 : (unsigned char)g_rx.front(); }
+int HardwareSerial::peek() {
+  const std::deque<char>& q = g_rx[g_board][port_];
+  return q.empty() ? -1 : (unsigned char)q.front();
+}
 
 size_t HardwareSerial::write(uint8_t c) {
   // Model the real UART: once the 64-byte buffer is full, write() blocks.
+  double& qEnd = g_txQueueEndUs[g_board][port_];
   double now = (double)g_sim->nowUs();
-  if (g_txQueueEndUs < now) g_txQueueEndUs = now;
-  g_txQueueEndUs += kUsPerByte;
-  double backlog = g_txQueueEndUs - now;
+  if (qEnd < now) qEnd = now;
+  qEnd += kUsPerByte;
+  double backlog = qEnd - now;
   double maxBacklog = kTxBufferBytes * kUsPerByte;
   if (backlog > maxBacklog) g_sim->advanceUs((uint64_t)(backlog - maxBacklog));
   char ch = (char)c;
-  g_sim->serialTx(&ch, 1);
+  g_sim->serialTx(port_, &ch, 1);
   return 1;
 }
 size_t HardwareSerial::write(const char* s) {

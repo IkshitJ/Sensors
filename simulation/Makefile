@@ -4,9 +4,10 @@ CXXFLAGS ?= -std=c++17 -O2 -Wall -Wno-unused-function -Iarduino
 LDFLAGS  ?= -pthread
 
 COMMON_SRC = src/harness.cpp src/world.cpp arduino/core.cpp
-COMMON_HDR = src/world.h arduino/Arduino.h arduino/HX711.h arduino/sim_hooks.h
+COMMON_HDR = src/world.h src/sketch_boards.h arduino/Arduino.h arduino/HX711.h arduino/sim_hooks.h
 FW_V2  = ../firmware/ZebraCrossingPedestrianCounter/ZebraCrossingPedestrianCounter.ino \
-         ../firmware/ZebraCrossingPedestrianCounter/PedestrianCounter.h
+         ../firmware/ZebraCrossingPedestrianCounter/PedestrianCounter.h \
+         ../firmware/ZebraCrossingPedestrianCounter/DirectionTracker.h
 FW_CAL = ../firmware/HX711_Calibration/HX711_Calibration.ino
 
 all: bin/zebra_v2 bin/zebra_cal
